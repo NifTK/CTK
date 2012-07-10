@@ -21,6 +21,7 @@
 
 #include <ctkCommandLineParser.h>
 
+#include <cstdlib>
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QFile>
