@@ -26,6 +26,8 @@
 #include <QTextStream>
 #include <QFile>
 
+#include <cstdlib>
+
 int main(int argc, char* argv[])
 {
   QCoreApplication app(argc, argv);
