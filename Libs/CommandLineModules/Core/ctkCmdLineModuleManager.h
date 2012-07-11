@@ -56,7 +56,7 @@ public:
 
   ~ctkCmdLineModuleManager();
 
-  ctkCmdLineModuleReference registerModule(const QString& location);
+  ctkCmdLineModuleReference registerModule(const QString& location, const bool& silent = false);
   void unregisterModule(const ctkCmdLineModuleReference& moduleRef);
 
   ctkCmdLineModuleReference moduleReference(const QString& location) const;

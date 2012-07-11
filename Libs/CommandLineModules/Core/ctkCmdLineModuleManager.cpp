@@ -56,7 +56,7 @@ ctkCmdLineModuleManager::~ctkCmdLineModuleManager()
 }
 
 ctkCmdLineModuleReference
-ctkCmdLineModuleManager::registerModule(const QString& location)
+ctkCmdLineModuleManager::registerModule(const QString& location, const bool& silent)
 {
   QProcess process;
   process.setReadChannel(QProcess::StandardOutput);
@@ -67,14 +67,20 @@ ctkCmdLineModuleManager::registerModule(const QString& location)
   if (!process.waitForFinished() || process.exitStatus() == QProcess::CrashExit ||
       process.error() != QProcess::UnknownError)
   {
-    qWarning() << "The executable at" << location << "could not be started:" << process.errorString();
+    if (!silent)
+    {
+      qWarning() << "The executable at" << location << "could not be started:" << process.errorString();
+    }
     return ref;
   }
 
   process.waitForReadyRead();
   QByteArray xml = process.readAllStandardOutput();
 
-  qDebug() << xml;
+  if (!silent)
+  {
+    qDebug() << xml;
+  }
 
   // validate the outputted xml description
   QBuffer input(&xml);
@@ -83,7 +89,10 @@ ctkCmdLineModuleManager::registerModule(const QString& location)
   ctkCmdLineModuleXmlValidator validator(&input);
   if (!validator.validateInput())
   {
-    qCritical() << validator.errorString();
+    if (!silent)
+    {
+      qCritical() << validator.errorString();
+    }
     return ref;
   }
 
