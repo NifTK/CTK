@@ -27,7 +27,7 @@
 ctkCmdLineModuleDescription ctkCmdLineModuleReferencePrivate::description() const
 {
   // lazy creation
-  if (!Description.d)
+  if (Description.title().isEmpty())
   {
     QByteArray xml(RawXmlDescription);
     QBuffer xmlInput(&xml);
