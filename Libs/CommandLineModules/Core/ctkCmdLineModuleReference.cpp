@@ -43,7 +43,16 @@ ctkCmdLineModuleReference &ctkCmdLineModuleReference::operator =(const ctkCmdLin
 
 ctkCmdLineModuleReference::operator bool()
 {
-  return d;
+  // Using the XML string to decide if this reference is valid.
+  // i.e. "valid" is equivalent to "was successfully parsed".
+  if (d->RawXmlDescription.length() > 0)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 ctkCmdLineModuleDescription ctkCmdLineModuleReference::description() const
