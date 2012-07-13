@@ -29,13 +29,19 @@
 
 class QIODevice;
 
+/**
+ * \ingroup CommandLineModulesCore
+ */
 class CTK_CMDLINEMODULECORE_EXPORT ctkCmdLineModuleXslTransform
     : public ctkCmdLineModuleXmlValidator
 {
 
 public:
 
-  ctkCmdLineModuleXslTransform(QIODevice* input = 0);
+  ctkCmdLineModuleXslTransform(QIODevice* input = 0, QIODevice* output = 0);
+
+  void setOutput(QIODevice* output);
+  QIODevice* output() const;
 
   void setOutputSchema(QIODevice* output);
 
@@ -49,21 +55,23 @@ public:
    */
   bool transform();
 
-  QString output() const;
-
   void setXslTransformation(QIODevice* transformation);
 
-  bool validateOutput();
+  void setValidateOutput(bool validate);
 
   bool error() const;
   QString errorString() const;
 
 private:
 
+  bool validateOutput();
+
+  bool Validate;
+
   QIODevice* OutputSchema;
   QIODevice* Transformation;
 
-  QString Output;
+  QIODevice* Output;
   QString ErrorStr;
 };
 
