@@ -17,6 +17,7 @@ set(KIT_SRCS
   ctkCmdLineModuleDefaultPathBuilder.cpp
   ctkCmdLineModuleDescription.cpp
   ctkCmdLineModuleDescriptionPrivate.h
+  ctkCmdLineModuleDirectoryWatcher.cpp
   ctkCmdLineModuleFuture.h
   #ctkCmdLineModuleFuture.cpp
   ctkCmdLineModuleInstance.cpp
@@ -43,6 +44,8 @@ set(KIT_SRCS
 
 # Headers that should run through moc
 set(KIT_MOC_SRCS
+  ctkCmdLineModuleDirectoryWatcher.h
+  ctkCmdLineModuleDirectoryWatcherPrivate.h
   ctkCmdLineModuleInstance.h
   #ctkCmdLineModuleProcess_p.h
 )
