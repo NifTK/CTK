@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>ctkCLIModuleBlur2dImage.xml</file>
+        <file>ctkCmdLineModuleBlur2dImage.xml</file>
     </qresource>
 </RCC>

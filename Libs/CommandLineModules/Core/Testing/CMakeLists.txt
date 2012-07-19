@@ -1,2 +1,2 @@
-add_subdirectory(CLIModules)
-#add_subdirectory(Cpp)
+add_subdirectory(Modules)
+add_subdirectory(Cpp)
