@@ -99,12 +99,15 @@ ctkCmdLineModuleManager::registerModule(const QString& location, const bool& sil
 //  ref.d->setGUI(descriptionFactory->createGUIFromXML(ref.d->xml));
 
   d->Cache[location] = ref;
+
+  emit moduleAdded(ref);
   return ref;
 }
 
 void ctkCmdLineModuleManager::unregisterModule(const ctkCmdLineModuleReference& ref)
 {
   d->Cache.remove(ref.location());
+  emit moduleRemoved(ref);
 }
 
 ctkCmdLineModuleReference ctkCmdLineModuleManager::moduleReference(const QString& location) const
@@ -114,7 +117,7 @@ ctkCmdLineModuleReference ctkCmdLineModuleManager::moduleReference(const QString
 
 QList<ctkCmdLineModuleReference> ctkCmdLineModuleManager::moduleReferences() const
 {
-  throw ctkException("not implemented yet");
+  return d->Cache.values();
 }
 
 ctkCmdLineModuleInstance*
