@@ -67,6 +67,8 @@ set(KIT_SRCS
   ctkDoubleRangeSlider.h
   ctkDoubleSlider.cpp
   ctkDoubleSlider.h
+  ctkDoubleSpinBox.cpp
+  ctkDoubleSpinBox.h
   ctkDynamicSpacer.cpp
   ctkDynamicSpacer.h
   ctkErrorLogStatusMessageHandler.cpp
@@ -216,6 +218,7 @@ set(KIT_MOC_SRCS
   ctkDirectoryButton.h
   ctkDoubleRangeSlider.h
   ctkDoubleSlider.h
+  ctkDoubleSpinBox.h
   ctkDynamicSpacer.h
   ctkErrorLogWidget.h
   ctkErrorLogStatusMessageHandler.h
