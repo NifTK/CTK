@@ -41,6 +41,11 @@
    <extends>QWidget</extends>
    <header>ctkDoubleSlider.h</header>
   </customwidget>
+  <customwidget>
+   <class>ctkDoubleSpinBox</class>
+   <extends>QWidget</extends>
+   <header>ctkDoubleSpinBox.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
