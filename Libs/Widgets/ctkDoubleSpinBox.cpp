@@ -80,3 +80,36 @@ void ctkDoubleSpinBox::stepBy(int steps)
     }
   Superclass::stepBy(steps);
 }
+
+// ----------------------------------------------------------------------------
+QAbstractSpinBox::StepEnabled ctkDoubleSpinBox::stepEnabled() const
+{
+  Q_D(const ctkDoubleSpinBox);
+  
+  if (!d->InvertedControls)
+    {
+    return Superclass::stepEnabled();
+    }
+
+  if (this->isReadOnly())
+    {
+    return StepNone;
+    }
+
+  if (this->wrapping())
+    {
+    return StepEnabled(StepUpEnabled | StepDownEnabled);
+    }
+    
+  StepEnabled ret = StepNone;
+  double value = this->value();
+  if (value < this->maximum())
+    {
+    ret |= StepDownEnabled;
+    }
+  if (value > this->minimum())
+    {
+    ret |= StepUpEnabled;
+    }
+  return ret;
+}

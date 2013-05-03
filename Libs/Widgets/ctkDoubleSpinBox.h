@@ -59,6 +59,12 @@ public:
   virtual void stepBy(int steps);
 
 protected:
+  /// If the invertedControls property is false (by default) then this function
+  /// behavesLike QDoubleSpinBox::stepEnabled(). If the property is true then
+  /// stepping down is allowed if the value is less then the maximum, and
+  /// stepping up is allowed if the value is greater then the minimum.
+  virtual StepEnabled stepEnabled () const;
+
   QScopedPointer<ctkDoubleSpinBoxPrivate> d_ptr;
 
 private:

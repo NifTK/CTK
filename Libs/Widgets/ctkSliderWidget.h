@@ -176,6 +176,7 @@ public:
   /// bars, the visual effect of the scroll bar subcontrols depends on whether
   /// or not the styles understand inverted appearance; most styles ignore this
   /// property for scroll bars.
+  /// \sa invertedControls
   void setInvertedAppearance(bool invertedAppearance);
   bool invertedAppearance()const;
 
@@ -185,6 +186,7 @@ public:
   /// like page up will increase the value of the slider widget towards its
   /// maximum. Otherwise, pressing page up will move value towards the minimum.
   /// The default value of the property is false.
+  /// \sa invertedAppearance
   void setInvertedControls(bool invertedControls);
   bool invertedControls()const;
 
