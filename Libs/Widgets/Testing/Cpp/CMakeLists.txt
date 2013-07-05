@@ -30,6 +30,7 @@ set(TEST_SOURCES
   ctkDoubleSliderTest1.cpp
   ctkDoubleSliderTest2.cpp
   ctkDoubleSpinBoxTest1.cpp
+  ctkDoubleSpinBoxTest2.cpp
   ctkDynamicSpacerTest1.cpp
   ctkDynamicSpacerTest2.cpp
   ctkErrorLogWidgetTest1.cpp
@@ -231,6 +232,7 @@ SIMPLE_TEST( ctkDoubleRangeSliderTest2 )
 SIMPLE_TEST( ctkDoubleSliderTest1 )
 SIMPLE_TEST( ctkDoubleSliderTest2 )
 SIMPLE_TEST( ctkDoubleSpinBoxTest1 )
+SIMPLE_TEST( ctkDoubleSpinBoxTest2 )
 SIMPLE_TEST( ctkDynamicSpacerTest1 )
 SIMPLE_TEST( ctkDynamicSpacerTest2 )
 SIMPLE_TEST( ctkErrorLogWidgetTest1 )
