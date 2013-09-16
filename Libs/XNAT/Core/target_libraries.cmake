@@ -6,6 +6,7 @@
 
 set(target_libraries
   qRestAPI_LIBRARIES
+  QUAZIP_LIBRARIES
   QT_LIBRARIES
   QtScript
   )
