@@ -18,45 +18,25 @@
 
 =========================================================================*/
 
-// Qt includes
-#include <QApplication>
-#include <QTimer>
-
 // CTK includes
-#include "ctkRangeWidget.h"
-
-// STD includes
-#include <cstdlib>
-#include <iostream>
+#include "ctkPushButton.h"
 
 //-----------------------------------------------------------------------------
-int ctkRangeWidgetTest2(int argc, char * argv [] )
+class ctkPushButtonPrivate
 {
-  QApplication app(argc, argv);
+  Q_DECLARE_PUBLIC(ctkPushButton);
+protected:
+  ctkPushButton* const q_ptr;
+public:
+  ctkPushButtonPrivate(ctkPushButton& object);
+  void init();
 
-  ctkRangeWidget sliderSpinBox;
-  sliderSpinBox.setDecimals(2);
-  sliderSpinBox.setRange(0, 99);
-  
-  sliderSpinBox.setValues(1., 10.);
-  sliderSpinBox.setRange(-10., -0.10);
+  virtual QRect iconRect() const;
+  virtual QSize buttonSizeHint()const;
+  virtual QStyleOptionButton drawIcon(QPainter* p);
 
-  sliderSpinBox.setMaximum(-11.);
-  
-  sliderSpinBox.setMinimum(101.);
-  
-  sliderSpinBox.setValues(0., 1000.);
-  
-  sliderSpinBox.setRange(-2002, 2002);
-
-  sliderSpinBox.show();
-
-  if (argc < 2 || QString(argv[1]) != "-I" )
-    {
-    QTimer::singleShot(200, &app, SLOT(quit()));
-    }
-
-  return app.exec();
-
-}
-
+  // Tuning of the button look&feel
+  Qt::Alignment ButtonTextAlignment;
+  Qt::Alignment IconAlignment;
+  int IconSpacing;
+};
