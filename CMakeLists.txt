@@ -490,6 +490,12 @@ ctk_lib_option(CommandLineModules/Backend/LocalProcess
 ctk_lib_option(CommandLineModules/Backend/FunctionPointer
                "Build the Command Line Module back-end for function pointers" OFF)
 
+ctk_lib_option(XNAT/Core
+               "Build the XNAT Core library" OFF)
+
+ctk_lib_option(XNAT/Widgets
+               "Build the XNAT Widgets library" OFF)
+
 #ctk_lib_option(Visualization/XIP
 #               "Build the XIP library" OFF)
 
@@ -590,6 +596,14 @@ if(CTK_USE_QTTESTING)
                 "Build the ctkQtTesting example application" OFF
                 CTK_BUILD_EXAMPLES)
 endif()
+
+ctk_app_option(ctkXNATBrowser
+               "Build the XNAT Browser application" OFF
+               CTK_BUILD_EXAMPLES)
+
+ctk_app_option(ctkXnatTreeBrowser
+               "Build the XNAT Tree Browser application" OFF
+               CTK_BUILD_EXAMPLES)
 
 # Save the set of enabled apps in a cache file
 set(_enabled_apps)
@@ -828,6 +842,8 @@ set(CTK_POSSIBLE_DEPENDENCIES
   ZMQ
   QtSOAP
   qxmlrpc
+  qRestAPI
+  QuaZip
   OpenIGTLink
   XIP
   ITK
