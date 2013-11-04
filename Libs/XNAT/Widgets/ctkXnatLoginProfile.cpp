@@ -85,8 +85,12 @@ QString ctkXnatLoginProfile::serverUri() const
 void ctkXnatLoginProfile::setServerUri(const QString& serverUri)
 {
   Q_D(ctkXnatLoginProfile);
-
-  d->ServerUri = serverUri;
+  
+  QString url = serverUri;
+  // removing trailing slash
+  while (url.endsWith (QString ("/"))) url.chop (1);
+  
+  d->ServerUri = url;
 }
 
 QString ctkXnatLoginProfile::userName() const
