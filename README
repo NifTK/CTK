@@ -1,5 +1,100 @@
+Introduction
+============
+
 The Common Toolkit is a community effort to provide support code for medical image analysis,
 surgical navigation, and related projects.
 
 See http://commontk.org
 
+This repository is a version of CTK, as used by the NifTK project.
+
+This repository is a fork of https://github.com/commontk/CTK.
+
+
+Updating the master branch
+==========================
+
+The master branch should exactly match the CTK master. We update
+a local branch here, just so we have a reference of which commit
+we think we have merged up to.
+
+So:
+
+git remote add upstream https://github.com/commontk/CTK
+git checkout master
+git pull upstream master
+git push origin master
+
+
+Updating the niftk branch
+=========================
+
+git checkout niftk
+git merge --no-ff master
+
+(and try to put something useful in the commit message)
+
+
+Differences between niftk branch and master branch
+==================================================
+
+The NifTK project aims to have as few differences as possible between
+this version of CTK and the original CTK. All bugfixes should be 
+raised in the CTK issue tracker on GitHub and then a branch
+created here, forking from **master** and using the branch naming convention
+
+<CTK issue number>-description
+
+for example
+
+409-widgets-on-ctkPopupWidget-do-not-get-keyboard-focus
+
+After fixing the bug it can be pushed to the upstream by
+
+git push upstream 409-widgets-on-ctkPopupWidget-do-not-get-keyboard-focus
+
+and you can send a pull request through the GitHub web interface.
+CTK can then merge the bugfix into their code, and we pick up the fix
+when we update our master branch, and consequently merge into the
+niftk branch.
+
+There are however cases where the NifTK project requires functional differences.
+Again, these should be as few as possible.  In this case there may or may not
+be a bug report raised with CTK, so the branch naming convention should
+either be the same as the above, or just
+
+trac-<trac ticket number>-description 
+
+These functional differences should still be forked from master so that if CTK 
+want to merge it back to their code-base, they can. We would however immediately
+merge it into the niftk branch once testing was complete.
+
+If you cannot wait until a fix is merged to the upstream then you can
+also create a branch with the trac ticket number, cherry pick the commits
+from the branch of the pull request, and update this README file to keep
+track of the differences.
+
+
+Known Differences between niftk branch and master branch
+========================================================
+
+The following is a list of differences as of 2013-10-06:
+
+1. Branch: xnat-support
+
+   Provides the CTK XNAT library, that has not been merged to the CTK master yet.
+   Tracks the xnat-support branch of the upstream, but contains a commit for
+   building Quazip as an external project.
+
+
+Tickets that are Outstanding (waiting to be merged) with CTK
+=============================================================
+
+The following is a list of differences as of 2013-11-17:
+
+1. Branch: trac-2529-cannot-alter-numbers-in-drop-down-control-panel-spinboxes
+
+   Popup widget transfers the 'active' flag to the window that requests keyboard input.
+
+   Pull request branch:
+   409-widgets-on-ctkPopupWidget-do-not-get-keyboard-focus
