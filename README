@@ -98,3 +98,10 @@ The following is a list of differences as of 2013-11-17:
 
    Pull request branch:
    409-widgets-on-ctkPopupWidget-do-not-get-keyboard-focus
+
+2. Branch: trac-2959-drop-down-control-panel-misplaced
+
+   Pop-up widgets were put in wrong position if main window was moved
+
+   Pull request branch: 
+   411-ctkPopupWidget-put-in-wrong-position-on-resize-or-move
