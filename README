@@ -88,4 +88,8 @@ Tickets that are Outstanding (waiting to be merged) with CTK
 
 The following is a list of differences as of 2014-06-18:
 
-None.
+1. XNAT assessment support
+
+   Branch: xnat-assessment-support
+   Pull request: https://github.com/commontk/CTK/pull/485
+
