@@ -78,30 +78,14 @@ track of the differences.
 Known Differences between niftk branch and master branch
 ========================================================
 
-The following is a list of differences as of 2013-10-06:
+The following is a list of differences as of 2014-06-18:
 
-1. Branch: xnat-support
-
-   Provides the CTK XNAT library, that has not been merged to the CTK master yet.
-   Tracks the xnat-support branch of the upstream, but contains a commit for
-   building Quazip as an external project.
+None.
 
 
 Tickets that are Outstanding (waiting to be merged) with CTK
 =============================================================
 
-The following is a list of differences as of 2013-11-17:
+The following is a list of differences as of 2014-06-18:
 
-1. Branch: trac-2529-cannot-alter-numbers-in-drop-down-control-panel-spinboxes
-
-   Popup widget transfers the 'active' flag to the window that requests keyboard input.
-
-   Pull request branch:
-   409-widgets-on-ctkPopupWidget-do-not-get-keyboard-focus
-
-2. Branch: trac-2959-drop-down-control-panel-misplaced
-
-   Pop-up widgets were put in wrong position if main window was moved
-
-   Pull request branch: 
-   411-ctkPopupWidget-put-in-wrong-position-on-resize-or-move
+None.
