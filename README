@@ -93,3 +93,8 @@ The following is a list of differences as of 2014-06-18:
    Branch: xnat-assessment-support
    Pull request: https://github.com/commontk/CTK/pull/485
 
+2. ctkDICOMQueryRetrieveWidget fix
+
+   Branch: ctkDICOMQueryRetrieveWidget-fix
+   Pull request: https://github.com/commontk/CTK/pull/486
+
