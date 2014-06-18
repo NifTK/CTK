@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -25,24 +25,25 @@
 #include "ctkXNATCoreExport.h"
 
 #include "ctkXnatObject.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
 class ctkXnatProject;
 class ctkXnatSubjectPrivate;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatSubject : public ctkXnatObject
 {
 
 public:
 
-  typedef QSharedPointer<ctkXnatSubject> Pointer;
-  typedef QWeakPointer<ctkXnatSubject> WeakPointer;
-
-  static Pointer Create();
+  ctkXnatSubject(ctkXnatObject* parent = 0, const QString& schemaType = ctkXnatDefaultSchemaTypes::XSI_SUBJECT);
 
   virtual ~ctkXnatSubject();
 
-  QSharedPointer<ctkXnatProject> getPrimaryProject() const;
-  QList<QSharedPointer<ctkXnatProject> > getProjects() const;
+  ctkXnatProject* getPrimaryProject() const;
+  QList<ctkXnatProject*> getProjects() const;
 
   const QString& insertDate() const;
   void setInsertDate(const QString& insertDate);
@@ -50,29 +51,17 @@ public:
   const QString& insertUser() const;
   void setInsertUser(const QString& insertUser);
 
-//  const QString& uri() const;
-//  void setUri(const QString& uri);
+  virtual QString resourceUri() const;
 
   void reset();
-  void remove();
-  
-  bool isFile() const;
 
-  /* bool receivesFiles() const; */
-  /* bool holdsFiles() const; */
-  /* bool isDeletable() const; */
-  /* bool isModifiable() const; */
-  
 private:
 
   friend class qRestResult;
 
-  explicit ctkXnatSubject();
-
   virtual void fetchImpl();
 
   Q_DECLARE_PRIVATE(ctkXnatSubject)
-  Q_DISABLE_COPY(ctkXnatSubject)
 };
 
 #endif

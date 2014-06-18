@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Library: CTK
+  Library: XNAT/Widgets
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -30,23 +30,25 @@
 
 #include "ctkXnatLoginProfile.h"
 
-class ctkXnatConnection;
-class ctkXnatConnectionFactory;
+class ctkXnatSession;
 class ctkXnatLoginDialogPrivate;
 class ctkXnatSettings;
 
+/**
+ * @ingroup XNAT_Widgets
+ */
 class CTK_XNAT_WIDGETS_EXPORT ctkXnatLoginDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit ctkXnatLoginDialog(ctkXnatConnectionFactory* f, QWidget* parent = 0, Qt::WindowFlags flags = 0);
+  explicit ctkXnatLoginDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
   virtual ~ctkXnatLoginDialog();
 
   ctkXnatSettings* settings() const;
   void setSettings(ctkXnatSettings* settings);
 
-  ctkXnatConnection* getConnection();
+  ctkXnatSession* session() const;
 
   virtual void accept();
 
@@ -74,8 +76,8 @@ private:
   /// \brief d pointer of the pimpl pattern
   QScopedPointer<ctkXnatLoginDialogPrivate> d_ptr;
 
-  Q_DECLARE_PRIVATE(ctkXnatLoginDialog);
-  Q_DISABLE_COPY(ctkXnatLoginDialog);
+  Q_DECLARE_PRIVATE(ctkXnatLoginDialog)
+  Q_DISABLE_COPY(ctkXnatLoginDialog)
 };
 
 #endif

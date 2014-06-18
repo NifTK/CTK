@@ -24,32 +24,33 @@
 
 #include "ctkXnatLoginDialog.h"
 #include "ctkXnatTreeModel.h"
-#include "ctkXnatConnection.h"
-#include "ctkXnatConnectionFactory.h"
-#include "ctkXnatServer.h"
+#include "ctkXnatSession.h"
+#include "ctkXnatDataModel.h"
 #include "ctkXnatProject.h"
+#include "ctkXnatFile.h"
 
 ctkXnatTreeBrowserMainWindow::ctkXnatTreeBrowserMainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::ctkXnatTreeBrowserMainWindow),
-  m_ConnectionFactory(new ctkXnatConnectionFactory()),
-  m_Connection(0),
+  m_Session(0),
   m_TreeModel(new ctkXnatTreeModel())
 {
   ui->setupUi(this);
 
   ui->treeView->setModel(m_TreeModel);
+  ui->downloadLabel->hide();
 
   this->connect(ui->loginButton, SIGNAL(clicked()), SLOT(loginButtonPushed()));
+  this->connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), SLOT(itemSelected(const QModelIndex&)));
+  this->connect(ui->downloadButton, SIGNAL(clicked()), SLOT(downloadButtonClicked()));
 }
 
 ctkXnatTreeBrowserMainWindow::~ctkXnatTreeBrowserMainWindow()
 {
-  if (m_Connection)
+  if (m_Session)
   {
-    delete m_Connection;
+    delete m_Session;
   }
-  delete m_ConnectionFactory;
   delete ui;
 
   delete m_TreeModel;
@@ -57,31 +58,52 @@ ctkXnatTreeBrowserMainWindow::~ctkXnatTreeBrowserMainWindow()
 
 void ctkXnatTreeBrowserMainWindow::loginButtonPushed()
 {
-  if (m_Connection)
+  if (m_Session)
   {
-    delete m_Connection;
-    m_Connection = 0;
+    delete m_Session;
+    m_Session = 0;
     ui->loginButton->setText("Login");
     ui->loginLabel->setText("Disconnected");
+    ui->downloadLabel->hide();
 
     // nt: download tests... //
     // m_TreeModel->downloadFile (ui->treeView->selectionModel()->currentIndex(), "/Users/nicolastoussaint/Desktop/test.nii.gz");
   }
   else
   {
-    ctkXnatLoginDialog loginDialog(m_ConnectionFactory);
+    ctkXnatLoginDialog loginDialog;
     if (loginDialog.exec() == QDialog::Accepted)
     {
-      m_Connection = loginDialog.getConnection();
-      if (m_Connection)
+      m_Session = loginDialog.session();
+      if (m_Session)
       {
         ui->loginButton->setText("Logout");
-        ui->loginLabel->setText(QString("Connected: %1").arg(m_Connection->url()));
+        ui->loginLabel->setText(QString("Connected: %1").arg(m_Session->url().toString()));
 
-        ctkXnatServer::Pointer server = m_Connection->server();
-        m_TreeModel->addServer(server);
+        ctkXnatDataModel* dataModel = m_Session->dataModel();
+        m_TreeModel->addDataModel(dataModel);
         ui->treeView->reset();
+        ui->downloadLabel->show();
       }
     }
+  }
+}
+
+void ctkXnatTreeBrowserMainWindow::itemSelected(const QModelIndex &index)
+{
+  ctkXnatObject* xnatObject = m_TreeModel->xnatObject(index);
+  ctkXnatFile* xnatFile = dynamic_cast<ctkXnatFile*>(xnatObject);
+  ui->downloadButton->setEnabled(xnatFile != 0);
+  ui->downloadLabel->setVisible(!(xnatFile != 0));
+}
+
+void ctkXnatTreeBrowserMainWindow::downloadButtonClicked()
+{
+  const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+  QVariant variant = m_TreeModel->data(index, Qt::DisplayRole);
+  QString fileName = variant.value<QString>();
+  if ( fileName.length() != 0 )
+  {
+    m_TreeModel->downloadFile(index, fileName);
   }
 }

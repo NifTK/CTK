@@ -38,7 +38,6 @@
 # one for installation.  The file tells external projects how to use CTK.
 #
 
-
 message(STATUS "Including CMake built-in module CMakePackageConfigHelpers")
 include(CMakePackageConfigHelpers OPTIONAL)
 if(COMMAND configure_package_config_file)
@@ -73,9 +72,8 @@ else()
 endif()
 
 # CTK external projects variables
-string(REPLACE "^" ";" CTK_SUPERBUILD_EP_VARNAMES "${CTK_SUPERBUILD_EP_VARNAMES}")
 set(CTK_SUPERBUILD_EP_VARS_CONFIG)
-foreach(varname ${CTK_SUPERBUILD_EP_VARNAMES})
+foreach(varname ${CTK_EP_LABEL_FIND_PACKAGE})
   set(CTK_SUPERBUILD_EP_VARS_CONFIG
    "${CTK_SUPERBUILD_EP_VARS_CONFIG}
 set(CTK_${varname} \"${${varname}}\")")
@@ -145,13 +143,15 @@ set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_QT_QMAKE_EXECUTABLE \"${QT_QMAKE_
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# The CTK Qt designer plugins directory\n")
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_QTDESIGNERPLUGINS_DIR \"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}\")\n")
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# CTK library include dirctories\n")
+set(_include_dirs)
 foreach(lib ${CTK_LIBRARIES} CTKTesting)
   set(${lib}_INCLUDE_DIRS ${${lib}_SOURCE_DIR} ${${lib}_BINARY_DIR})
   ctkFunctionGetIncludeDirs(${lib}_INCLUDE_DIRS ${lib})
+  list(APPEND _include_dirs ${${lib}_INCLUDE_DIRS})
   set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(${lib}_INCLUDE_DIRS \"${${lib}_INCLUDE_DIRS}\")\n")
 endforeach()
-set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_INCLUDE_DIRS \"${CTK_BASE_INCLUDE_DIRS}\")\n")
-set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}list(APPEND CTK_INCLUDE_DIRS \"${CTKTesting_INCLUDE_DIRS}\")\n")
+list(REMOVE_DUPLICATES _include_dirs)
+set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_INCLUDE_DIRS \"${_include_dirs}\")\n")
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# CTK library directories that could be used for linking\n")
 foreach(lib ${CTK_LIBRARIES})
   set(${lib}_LIBRARY_DIRS "")
@@ -160,8 +160,12 @@ foreach(lib ${CTK_LIBRARIES})
 endforeach()
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# External project libraries\n")
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_EXTERNAL_LIBRARIES \"${CTK_EXTERNAL_LIBRARIES}\")\n")
-set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# External project library directories\n")
-set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_EXTERNAL_LIBRARY_DIRS \"${CTK_EXTERNAL_LIBRARY_DIRS}\")\n")
+if(DEFINED DCMTK_HAVE_CONFIG_H_OPTIONAL AND NOT DCMTK_HAVE_CONFIG_H_OPTIONAL AND TARGET CTKDICOMCore)
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# Definition required to build DCMTK dependent libraries\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}if(\"\${CMAKE_VERSION}\" VERSION_GREATER 2.8.10)\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}  set_target_properties(CTKDICOMCore PROPERTIES INTERFACE_COMPILE_DEFINITIONS ${DCMTK_DEFINITIONS})\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}endif()\n")
+endif()
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}##################################################")
 
 set(ctk_config ${CTK_SUPERBUILD_BINARY_DIR}/CTKConfig.cmake)
@@ -192,7 +196,7 @@ set(CTK_LIBRARY_DIR_CONFIG ${CTK_INSTALL_LIB_DIR})
 
 set(CTK_CONFIG_CODE "####### Expanded from \@CTK_CONFIG_CODE\@ #######\n")
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# CTK library include dirctories\n")
-foreach(libname ${CTK_LIBRARIES} CTKTesting)
+foreach(libname ${CTK_LIBRARIES})
   set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(${libname}_INCLUDE_DIRS \"\${PACKAGE_PREFIX_DIR}/${CTK_INSTALL_INCLUDE_DIR}\")\n")
 endforeach()
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(CTK_INCLUDE_DIRS \"\${PACKAGE_PREFIX_DIR}/${CTK_INSTALL_INCLUDE_DIR}\")\n")
@@ -200,6 +204,12 @@ set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# CTK library directories that could be u
 foreach(lib ${CTK_LIBRARIES})
   set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}set(${lib}_LIBRARY_DIRS \"\")\n")
 endforeach()
+if(DEFINED DCMTK_HAVE_CONFIG_H_OPTIONAL AND NOT DCMTK_HAVE_CONFIG_H_OPTIONAL AND TARGET CTKDICOMCore)
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}# Definition required to build DCMTK dependent libraries\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}if(\"\${CMAKE_VERSION}\" VERSION_GREATER 2.8.10)\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}  set_target_properties(CTKDICOMCore PROPERTIES INTERFACE_COMPILE_DEFINITIONS ${DCMTK_DEFINITIONS})\n")
+  set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}endif()\n")
+endif()
 
 set(CTK_CONFIG_CODE "${CTK_CONFIG_CODE}##################################################")
 

@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Library: CTK
+  Library: XNAT/Core
 
   Copyright (c) German Cancer Research Center,
     Division of Medical and Biological Informatics
@@ -22,8 +22,9 @@
 #ifndef CTKXNATOBJECTPRIVATE_H
 #define CTKXNATOBJECTPRIVATE_H
 
+#include <QDateTime>
 #include <QMap>
-#include <QSharedPointer>
+#include <QString>
 
 class ctkXnatObject;
 class ctkXnatConnection;
@@ -40,18 +41,19 @@ public:
   explicit ctkXnatObjectPrivate();
   virtual ~ctkXnatObjectPrivate();
 
-  QWeakPointer<ctkXnatObject> selfPtr;
-
 private:
 
   friend class ctkXnatObject;
 
-  QList<QSharedPointer<ctkXnatObject> > children;
-  QMap<QString,QString> properties;
+  QMap<QString, QString> properties;
+
+  QList<ctkXnatObject*> children;
+
+  QDateTime lastModifiedTime;
 
   bool fetched;
 
-  QWeakPointer<ctkXnatObject> parent;
+  ctkXnatObject* parent;
 };
 
 #endif // CTKXNATOBJECTPRIVATE_H

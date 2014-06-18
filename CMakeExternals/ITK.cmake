@@ -2,17 +2,16 @@
 # ITK
 #
 
-superbuild_include_once()
-
-set(ITK_enabling_variable ITK_LIBRARIES)
-set(${ITK_enabling_variable}_LIBRARY_DIRS ITK_LIBRARY_DIRS)
-set(${ITK_enabling_variable}_INCLUDE_DIRS ITK_INCLUDE_DIRS)
-set(${ITK_enabling_variable}_FIND_PACKAGE_CMD ITK)
-
-set(ITK_DEPENDENCIES "")
-
-ctkMacroCheckExternalProjectDependency(ITK)
 set(proj ITK)
+
+set(${proj}_DEPENDENCIES "")
+
+ExternalProject_Include_Dependencies(${proj}
+  PROJECT_VAR proj
+  DEPENDS_VAR ${proj}_DEPENDENCIES
+  EP_ARGS_VAR ${proj}_EXTERNAL_PROJECT_ARGS
+  USE_SYSTEM_VAR ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj}
+  )
 
 if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   unset(ITK_DIR CACHE)
@@ -49,14 +48,13 @@ if(NOT DEFINED ITK_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   endif()
 
   ExternalProject_Add(${proj}
+    ${${proj}_EXTERNAL_PROJECT_ARGS}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${proj}-build
     PREFIX ${proj}${ep_suffix}
     ${location_args}
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
-    CMAKE_GENERATOR ${gen}
-    LIST_SEPARATOR ${sep}
     CMAKE_CACHE_ARGS
       ${ep_common_cache_args}
       ${ep_project_include_arg}
@@ -74,12 +72,11 @@ if(NOT DEFINED ITK_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     )
   set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
-  # Since the link directories associated with ITK is used, it makes sens to
-  # update CTK_EXTERNAL_LIBRARY_DIRS with its associated library output directory
-  list(APPEND CTK_EXTERNAL_LIBRARY_DIRS ${ITK_DIR}/bin)
-
 else()
-  ctkMacroEmptyExternalproject(${proj} "${${proj}_DEPENDENCIES}")
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDENCIES})
 endif()
 
-list(APPEND CTK_SUPERBUILD_EP_VARS ITK_DIR:PATH)
+mark_as_superbuild(
+  VARS ITK_DIR:PATH
+  LABELS "FIND_PACKAGE"
+  )

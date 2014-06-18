@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -23,9 +23,14 @@
 
 #include "ctkXnatProject.h"
 
-#include "ctkXnatConnection.h"
+#include "ctkXnatSession.h"
 #include "ctkXnatObjectPrivate.h"
+#include "ctkXnatExperiment.h"
+#include "ctkXnatProject.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
+
+//----------------------------------------------------------------------------
 class ctkXnatSubjectPrivate : public ctkXnatObjectPrivate
 {
 public:
@@ -47,82 +52,80 @@ public:
   QString insertUser;
 //  QString uri;
 
-  QList<ctkXnatProject::WeakPointer> projects;
+  QList<ctkXnatProject*> projects;
 };
 
-ctkXnatSubject::ctkXnatSubject()
-: ctkXnatObject(*new ctkXnatSubjectPrivate())
+
+//----------------------------------------------------------------------------
+ctkXnatSubject::ctkXnatSubject(ctkXnatObject* parent, const QString& schemaType)
+: ctkXnatObject(*new ctkXnatSubjectPrivate(), parent, schemaType)
 {
 }
 
+//----------------------------------------------------------------------------
 ctkXnatSubject::~ctkXnatSubject()
 {
 }
 
+//----------------------------------------------------------------------------
 const QString& ctkXnatSubject::insertDate() const
 {
   Q_D(const ctkXnatSubject);
   return d->insertDate;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatSubject::setInsertDate(const QString& insertDate)
 {
   Q_D(ctkXnatSubject);
   d->insertDate = insertDate;
 }
 
+//----------------------------------------------------------------------------
 const QString& ctkXnatSubject::insertUser() const
 {
   Q_D(const ctkXnatSubject);
   return d->insertUser;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatSubject::setInsertUser(const QString& insertUser)
 {
   Q_D(ctkXnatSubject);
   d->insertUser = insertUser;
 }
 
-//const QString& ctkXnatSubject::uri() const
-//{
-//  Q_D(const ctkXnatSubject);
-//  return d->uri;
-//}
+//----------------------------------------------------------------------------
+QString ctkXnatSubject::resourceUri() const
+{
+  return QString("%1/subjects/%2").arg(parent()->resourceUri(), this->id());
+}
 
-//void ctkXnatSubject::setUri(const QString& uri)
-//{
-//  Q_D(ctkXnatSubject);
-//  d->uri = uri;
-//}
-
+//----------------------------------------------------------------------------
 void ctkXnatSubject::reset()
 {
   Q_D(ctkXnatSubject);
   d->reset();
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatSubject::fetchImpl()
 {
-  Q_D(ctkXnatSubject);
-  ctkXnatObject::Pointer self = d->selfPtr;
-  connection()->fetch(self.staticCast<ctkXnatSubject>());
-}
+  QString experimentsUri = this->resourceUri() + "/experiments";
+  ctkXnatSession* const session = this->session();
+  QUuid queryId = session->httpGet(experimentsUri);
+  QList<ctkXnatObject*> experiments = session->httpResults(queryId,
+                                                           ctkXnatDefaultSchemaTypes::XSI_EXPERIMENT);
 
-ctkXnatSubject::Pointer ctkXnatSubject::Create()
-{
-  Pointer subject(new ctkXnatSubject());
-  subject->d_func()->selfPtr = subject;
-  return subject;
-}
+  foreach (ctkXnatObject* experiment, experiments)
+  {
+    QString label = experiment->property ("label");
+    if (!label.isEmpty())
+    {
+      experiment->setProperty ("ID", label);
+    }
 
-
-void ctkXnatSubject::remove()
-{
-  // ctkXnatObject::remove();
-  // getConnection()->remove(this);
-}
-
-bool ctkXnatSubject::isFile() const
-{
-  return false;
+    this->add(experiment);
+  }
+  this->fetchResources();
 }

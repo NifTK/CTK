@@ -8,18 +8,11 @@ set(KIT_export_directive "CTK_XNAT_WIDGETS_EXPORT")
 
 set(KIT_SRCS
   ctkXnatLoginDialog.cpp
-  ctkXnatLoginProfile.cpp
-  ctkXnatTreeItem.cpp
-  ctkXnatProjectListModel.cpp
-  ctkXnatTreeModel.cpp
-  ctkXnatSettings.cpp
 )
 
 # Files which should be processed by Qts moc
 set(KIT_MOC_SRCS
   ctkXnatLoginDialog.h
-  ctkXnatProjectListModel.h
-  ctkXnatTreeModel.h
 )
 
 
@@ -32,13 +25,15 @@ set(KIT_UI_FORMS
 set(KIT_resources
 )
 
-set(QT_USE_QTSCRIPT 1)
-
 # Target libraries - See CMake/ctkFunctionGetTargetLibraries.cmake
 # The following macro will read the target libraries from the file 'target_libraries.cmake'
 set(KIT_target_libraries)
 
 ctkFunctionGetTargetLibraries(KIT_target_libraries)
+
+if(CTK_QT_VERSION VERSION_GREATER "4")
+  list(APPEND KIT_target_libraries Qt5::Widgets)
+endif()
 
 ctkMacroBuildLib(
   NAME ${PROJECT_NAME}

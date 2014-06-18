@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -22,56 +22,138 @@
 #include "ctkXnatObject.h"
 #include "ctkXnatObjectPrivate.h"
 
-#include "ctkXnatServer.h"
+#include "ctkXnatDataModel.h"
+#include "ctkXnatSession.h"
+#include "ctkXnatDefaultSchemaTypes.h"
+
+#include <QDateTime>
 #include <QDebug>
+#include <QStringList>
 #include <QVariant>
 
 
-ctkXnatObject::ctkXnatObject(ctkXnatObjectPrivate& d)
-: d_ptr(&d)
+//----------------------------------------------------------------------------
+ctkXnatObject::ctkXnatObject(const ctkXnatObject&)
 {
+  throw ctkRuntimeException("Copy constructor not implemented");
 }
 
-
-ctkXnatObject::ctkXnatObject()
+//----------------------------------------------------------------------------
+ctkXnatObject::ctkXnatObject(ctkXnatObject* parent, const QString& schemaType)
 : d_ptr(new ctkXnatObjectPrivate())
 {
+  this->setParent(parent);
+  this->setSchemaType(schemaType);
 }
 
+//----------------------------------------------------------------------------
+ctkXnatObject::ctkXnatObject(ctkXnatObjectPrivate& dd, ctkXnatObject* parent, const QString& schemaType)
+: d_ptr(&dd)
+{
+  this->setParent(parent);
+  this->setSchemaType(schemaType);
+}
+
+//----------------------------------------------------------------------------
 ctkXnatObject::~ctkXnatObject()
 {
+  Q_D(ctkXnatObject);
+  foreach (ctkXnatObject* child, d->children)
+  {
+    delete child;
+  }
 }
 
+//----------------------------------------------------------------------------
 QString ctkXnatObject::id() const
 {
   return property("ID");
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatObject::setId(const QString& id)
 {
   setProperty("ID", id);
 }
 
-QString ctkXnatObject::uri() const
-{
-  return property("URI");
-}
-
-void ctkXnatObject::setUri(const QString& uri)
-{
-  setProperty("URI", uri);
-}
-
+//----------------------------------------------------------------------------
 QString ctkXnatObject::name() const
 {
   return property("name");
 }
 
+//----------------------------------------------------------------------------
+void ctkXnatObject::setName(const QString& name)
+{
+  setProperty("name", name);
+}
+
+//----------------------------------------------------------------------------
 QString ctkXnatObject::description() const
 {
   return property("description");
 }
 
+//----------------------------------------------------------------------------
+void ctkXnatObject::setDescription(const QString& description)
+{
+  setProperty("description", description);
+}
+
+//----------------------------------------------------------------------------
+QString ctkXnatObject::childDataType() const
+{
+  return "Resources";
+}
+
+QDateTime ctkXnatObject::lastModifiedTime()
+{
+  Q_D(ctkXnatObject);
+  QUuid queryId = this->session()->httpHead(this->resourceUri());
+  QMap<QByteArray, QByteArray> header = this->session()->httpHeadSync(queryId);
+  QVariant lastModifiedHeader = header.value("Last-Modified");
+  QDateTime lastModifiedTime;
+
+  if (lastModifiedHeader.isValid())
+  {
+    QStringList dateformates;
+    // In case http date formate RFC 822 ( "Sun, 06 Nov 1994 08:49:37 GMT" )
+    dateformates<<"ddd, dd MMM yyyy HH:mm:ss";
+    // In case http date formate ANSI ( "Sun Nov  6 08:49:37 1994" )
+    dateformates<<"ddd MMM  d HH:mm:ss yyyy";
+    // In case http date formate RFC 850 ( "Sunday, 06-Nov-94 08:49:37 GMT" )
+    dateformates<<"dddd, dd-MMM-yy HH:mm:ss";
+
+    QString dateText = lastModifiedHeader.toString();
+    // Remove "GMT" addition at the end of the http timestamp
+    if (dateText.indexOf("GMT") != -1)
+    {
+      dateText = dateText.left(dateText.length()-4);
+    }
+
+    foreach (QString format, dateformates)
+    {
+      lastModifiedTime = QDateTime::fromString(dateText, format);
+      if (lastModifiedTime.isValid())
+        break;
+    }
+  }
+
+  if (lastModifiedTime.isValid() && d->lastModifiedTime < lastModifiedTime)
+    this->setLastModifiedTime(lastModifiedTime);
+  return lastModifiedTime;
+}
+
+void ctkXnatObject::setLastModifiedTime(const QDateTime &lastModifiedTime)
+{
+  Q_D(ctkXnatObject);
+  if (d->lastModifiedTime < lastModifiedTime)
+  {
+    d->lastModifiedTime = lastModifiedTime;
+  }
+}
+
+//----------------------------------------------------------------------------
 QString ctkXnatObject::property(const QString& name) const
 {
   Q_D(const ctkXnatObject);
@@ -83,57 +165,80 @@ QString ctkXnatObject::property(const QString& name) const
   return QString::null;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatObject::setProperty(const QString& name, const QVariant& value)
 {
   Q_D(ctkXnatObject);
   d->properties.insert(name, value.toString());
 }
 
-
-QList<QString> ctkXnatObject::properties()
+//----------------------------------------------------------------------------
+const QMap<QString, QString>& ctkXnatObject::properties() const
 {
-  Q_D(ctkXnatObject);
-  
-  QList<QString> value;
-
-  QMapIterator<QString, QString> it(d->properties);
-  while (it.hasNext())
-  {
-    it.next();
-    value.push_back (it.key());
-  }
-
-  return value;
+  Q_D(const ctkXnatObject);
+  return d->properties;
 }
 
-ctkXnatObject::Pointer ctkXnatObject::parent() const
+//----------------------------------------------------------------------------
+ctkXnatObject* ctkXnatObject::parent() const
 {
   Q_D(const ctkXnatObject);
   return d->parent;
 }
 
-QList<ctkXnatObject::Pointer> ctkXnatObject::children() const
+//----------------------------------------------------------------------------
+void ctkXnatObject::setParent(ctkXnatObject* parent)
+{
+  Q_D(ctkXnatObject);
+  if (d->parent != parent)
+  {
+    if (d->parent)
+    {
+      d->parent->remove(this);
+    }
+    if (parent)
+    {
+      parent->add(this);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+QList<ctkXnatObject*> ctkXnatObject::children() const
 {
   Q_D(const ctkXnatObject);
   return d->children;
 }
 
-void ctkXnatObject::addChild(ctkXnatObject::Pointer& child)
+//----------------------------------------------------------------------------
+void ctkXnatObject::add(ctkXnatObject* child)
 {
   Q_D(ctkXnatObject);
-  d->children.push_back(child);
-  child->d_func()->parent = d->selfPtr;
+  if (child->parent() != this)
+  {
+    child->d_func()->parent = this;
+  }
+  if (!d->children.contains(child))
+  {
+    d->children.push_back(child);
+  }
+  else
+  {
+    qWarning() << "ctkXnatObject::add(): Child already exists";
+  }
 }
 
-void ctkXnatObject::removeChild(ctkXnatObject::Pointer& child)
+//----------------------------------------------------------------------------
+void ctkXnatObject::remove(ctkXnatObject* child)
 {
   Q_D(ctkXnatObject);
   if (!d->children.removeOne(child))
   {
-    qWarning() << "ctkXnatObject::removeChild(): Child does not exist";
+    qWarning() << "ctkXnatObject::remove(): Child does not exist";
   }
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatObject::reset()
 {
   Q_D(ctkXnatObject);
@@ -142,12 +247,20 @@ void ctkXnatObject::reset()
   d->fetched = false;
 }
 
+//----------------------------------------------------------------------------
 bool ctkXnatObject::isFetched() const
 {
   Q_D(const ctkXnatObject);
   return d->fetched;
 }
 
+//----------------------------------------------------------------------------
+QString ctkXnatObject::schemaType() const
+{
+  return this->property("xsiType");
+}
+
+//----------------------------------------------------------------------------
 void ctkXnatObject::fetch()
 {
   Q_D(ctkXnatObject);
@@ -158,66 +271,70 @@ void ctkXnatObject::fetch()
   }
 }
 
-ctkXnatConnection* ctkXnatObject::connection() const
+//----------------------------------------------------------------------------
+ctkXnatSession* ctkXnatObject::session() const
 {
   const ctkXnatObject* xnatObject = this;
-  const ctkXnatServer* server;
-  do {
-    xnatObject = xnatObject->parent().data();
-    server = dynamic_cast<const ctkXnatServer*>(xnatObject);
+  while (ctkXnatObject* parent = xnatObject->parent())
+  {
+    xnatObject = parent;
   }
-  while (xnatObject && !server);
-
-  return server ? xnatObject->connection() : 0;
+  const ctkXnatDataModel* dataModel = dynamic_cast<const ctkXnatDataModel*>(xnatObject);
+  return dataModel ? dataModel->session() : NULL;
 }
 
-
-bool ctkXnatObject::isFile() const
+//----------------------------------------------------------------------------
+void ctkXnatObject::setSchemaType(const QString& schemaType)
 {
-  return false;
+  this->setProperty("xsiType", schemaType);
 }
 
-bool ctkXnatObject::receivesFiles() const
-{
-  return false;
-}
-
-bool ctkXnatObject::holdsFiles() const
-{
-  return false;
-}
-
-bool ctkXnatObject::isModifiable() const
-{
-  return false;
-}
-
-bool ctkXnatObject::isDeletable() const
-{
-  return false;
-}
-
-
+//----------------------------------------------------------------------------
 void ctkXnatObject::download(const QString& /*zipFilename*/)
 {
-  // do nothing
-  // if (!this->isFile())
-  //   return;  
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatObject::upload(const QString& /*zipFilename*/)
 {
-  // do nothing
-  // if (!this->isFile())
-  //   return;  
 }
 
-void ctkXnatObject::add(const QString& /*name*/)
+//----------------------------------------------------------------------------
+bool ctkXnatObject::exists() const
 {
-  // do nothing
+  return this->session()->exists(this);
 }
 
-void ctkXnatObject::remove()
+//----------------------------------------------------------------------------
+void ctkXnatObject::save()
 {
-  // do nothing
+  this->session()->save(this);
+}
+
+//----------------------------------------------------------------------------
+void ctkXnatObject::fetchResources()
+{
+  QString query = this->resourceUri() + "/resources";
+  ctkXnatSession* const session = this->session();
+  QUuid queryId = session->httpGet(query);
+
+  QList<ctkXnatObject*> resources = session->httpResults(queryId,
+                                                           ctkXnatDefaultSchemaTypes::XSI_RESOURCE);
+
+  foreach (ctkXnatObject* resource, resources)
+  {
+    QString label = resource->property("label");
+    if (!label.isEmpty())
+    {
+      resource->setProperty("ID", label);
+    }
+    this->add(resource);
+  }
+}
+
+//----------------------------------------------------------------------------
+void ctkXnatObject::erase()
+{
+  this->session()->remove(this);
+  this->parent()->remove(this);
 }

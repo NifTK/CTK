@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -25,21 +25,26 @@
 #include "ctkXNATCoreExport.h"
 
 #include "ctkXnatObject.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
-class ctkXnatConnection;
+class ctkXnatDataModel;
 class ctkXnatProjectPrivate;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatProject : public ctkXnatObject
 {
 
 public:
 
-  typedef QSharedPointer<ctkXnatProject> Pointer;
-  typedef QWeakPointer<ctkXnatProject> WeakPointer;
-
-  static Pointer Create();
+  ctkXnatProject(ctkXnatObject* parent = 0, const QString& schemaType = ctkXnatDefaultSchemaTypes::XSI_PROJECT);
 
   virtual ~ctkXnatProject();
+
+  virtual QString resourceUri() const;
+
+  virtual QString childDataType() const;
 
   const QString& secondaryId() const;
   void setSecondaryId(const QString& secondaryId);
@@ -50,29 +55,13 @@ public:
   const QString& piLastName() const;
   void setPiLastName(const QString& piLastName);
 
-//  const QString& uri() const;
-//  void setUri(const QString& uri);
-
   void reset();
-  void remove();
-  
-  bool isFile() const;
-
-  /* bool receivesFiles() const; */
-  /* bool holdsFiles() const; */
-  /* bool isDeletable() const; */
-  /* bool isModifiable() const; */
 
 private:
-
-  friend class qRestResult;
-
-  explicit ctkXnatProject();
 
   virtual void fetchImpl();
 
   Q_DECLARE_PRIVATE(ctkXnatProject)
-  Q_DISABLE_COPY(ctkXnatProject)
 };
 
 #endif

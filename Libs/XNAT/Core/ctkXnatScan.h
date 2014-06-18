@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -25,42 +25,34 @@
 #include "ctkXNATCoreExport.h"
 
 #include "ctkXnatObject.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
 class ctkXnatConnection;
+class ctkXnatScanFolder;
 class ctkXnatScanPrivate;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatScan : public ctkXnatObject
 {
 
 public:
 
-  typedef QSharedPointer<ctkXnatScan> Pointer;
-  typedef QWeakPointer<ctkXnatScan> WeakPointer;
-  
-  static Pointer Create();
-  virtual ~ctkXnatScan();
-  
-  const QString& uri() const;
-  void setUri(const QString& uri);
-  
-  void reset();
-  void remove();
-  
-  bool isFile() const;
+  ctkXnatScan(ctkXnatObject* parent = 0, const QString& schemaType = ctkXnatDefaultSchemaTypes::XSI_SCAN);
 
-  /* bool receivesFiles() const; */
-  /* bool holdsFiles() const; */
-  /* bool isDeletable() const; */
-  /* bool isModifiable() const; */
-  
+  virtual ~ctkXnatScan();
+
+  virtual QString resourceUri() const;
+
+  void reset();
+
 private:
-  
+
   friend class qRestResult;
-  explicit ctkXnatScan();
   virtual void fetchImpl();
-  
-  Q_DECLARE_PRIVATE(ctkXnatScan);
-  Q_DISABLE_COPY(ctkXnatScan);
+
+  Q_DECLARE_PRIVATE(ctkXnatScan)
 };
 
 #endif

@@ -70,7 +70,7 @@ set(KIT_UI_FORMS
   Resources/UI/ctkDICOMListenerWidget.ui
   Resources/UI/ctkDICOMQueryRetrieveWidget.ui
   Resources/UI/ctkDICOMQueryWidget.ui
-  Resources/UI/ctkDICOMObjectListWidget.ui 
+  Resources/UI/ctkDICOMObjectListWidget.ui
   Resources/UI/ctkDICOMServerNodeWidget.ui
   Resources/UI/ctkDICOMTableManager.ui
   Resources/UI/ctkDICOMTableView.ui
@@ -95,7 +95,7 @@ ctkMacroBuildLib(
   LIBRARY_TYPE ${CTK_LIBRARY_MODE}
   )
 
-if(CTK_WRAP_PYTHONQT_FULL OR CTK_WRAP_PYTHONQT_LIGHT)
+if(CTK_WRAP_PYTHONQT_LIGHT)
   ctkMacroBuildLibWrapper(
     TARGET ${PROJECT_NAME}
     SRCS ${KIT_SRCS}

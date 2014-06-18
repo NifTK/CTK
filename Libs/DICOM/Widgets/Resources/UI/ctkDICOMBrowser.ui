@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
+    <width>802</width>
     <height>607</height>
    </rect>
   </property>
@@ -45,6 +45,7 @@
      <addaction name="ActionQuery"/>
      <addaction name="ActionSend"/>
      <addaction name="ActionRemove"/>
+     <addaction name="ActionRepair"/>
     </widget>
    </item>
    <item>
@@ -74,13 +75,45 @@
         </widget>
        </item>
        <item>
-        <widget class="ctkDirectoryButton" name="DirectoryButton" native="true">
+        <widget class="ctkDirectoryButton" name="DirectoryButton">
          <property name="minimumSize">
           <size>
            <width>200</width>
            <height>20</height>
           </size>
          </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tablesDensityLabel">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Density</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="tableDensityComboBox">
+         <item>
+          <property name="text">
+           <string>Comfortable</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cozy</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Compact</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
@@ -173,6 +206,17 @@
     <string>Remove from database</string>
    </property>
   </action>
+  <action name="ActionRepair">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Repair</string>
+   </property>
+   <property name="toolTip">
+    <string>Check whether all the files associated with images in the local Database are available on the disk.</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -253,6 +297,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>391</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActionRepair</sender>
+   <signal>triggered()</signal>
+   <receiver>ctkDICOMBrowser</receiver>
+   <slot>onRepairAction()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
      <y>303</y>
     </hint>
    </hints>

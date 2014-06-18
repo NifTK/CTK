@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -21,9 +21,16 @@
 
 #include "ctkXnatExperiment.h"
 
-#include "ctkXnatConnection.h"
+#include "ctkXnatSession.h"
 #include "ctkXnatObjectPrivate.h"
+#include "ctkXnatSubject.h"
+#include "ctkXnatScan.h"
+#include "ctkXnatReconstruction.h"
+#include "ctkXnatScanFolder.h"
+#include "ctkXnatReconstructionFolder.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
+//----------------------------------------------------------------------------
 class ctkXnatExperimentPrivate : public ctkXnatObjectPrivate
 {
 public:
@@ -37,58 +44,60 @@ public:
   {
 //    uri.clear();
   }
-  
+
 //  QString uri;
 };
 
 
-ctkXnatExperiment::ctkXnatExperiment()
-: ctkXnatObject(*new ctkXnatExperimentPrivate())
+//----------------------------------------------------------------------------
+ctkXnatExperiment::ctkXnatExperiment(ctkXnatObject* parent, const QString& schemaType)
+: ctkXnatObject(*new ctkXnatExperimentPrivate(), parent, schemaType)
 {
 }
 
-ctkXnatExperiment::Pointer ctkXnatExperiment::Create()
-{
-  Pointer ptr(new ctkXnatExperiment());
-  ptr->d_func()->selfPtr = ptr;
-  return ptr;
-}
-
+//----------------------------------------------------------------------------
 ctkXnatExperiment::~ctkXnatExperiment()
 {
 }
 
-//const QString& ctkXnatExperiment::uri() const
-//{
-//  Q_D(const ctkXnatExperiment);
-//  return d->uri;
-//}
+//----------------------------------------------------------------------------
+QString ctkXnatExperiment::resourceUri() const
+{
+  return QString("%1/experiments/%2").arg(parent()->resourceUri(), this->id());
+}
 
-//void ctkXnatExperiment::setUri(const QString& uri)
-//{
-//  Q_D(ctkXnatExperiment);
-//  d->uri = uri;
-//}
-
+//----------------------------------------------------------------------------
 void ctkXnatExperiment::reset()
 {
   ctkXnatObject::reset();
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatExperiment::fetchImpl()
 {
-  Q_D(ctkXnatExperiment);
-  ctkXnatObject::Pointer self = d->selfPtr;
-  this->connection()->fetch(self.staticCast<ctkXnatExperiment>());
-}
+  QString scansUri = this->resourceUri() + "/scans";
+  ctkXnatSession* const session = this->session();
+  QUuid scansQueryId = session->httpGet(scansUri);
 
-void ctkXnatExperiment::remove()
-{
-  // ctkXnatObject::remove();
-  // getConnection()->remove(this);
-}
+  QList<ctkXnatObject*> scans = session->httpResults(scansQueryId,
+                                                     ctkXnatDefaultSchemaTypes::XSI_SCAN);
 
-bool ctkXnatExperiment::isFile() const
-{
-  return false;
+  if (!scans.isEmpty())
+  {
+    ctkXnatScanFolder* scanFolder = new ctkXnatScanFolder();
+    this->add(scanFolder);
+  }
+
+  QString reconstructionsUri = this->resourceUri() + "/reconstructions";
+  QUuid reconstructionsQueryId = session->httpGet(reconstructionsUri);
+
+  QList<ctkXnatObject*> reconstructions = session->httpResults(reconstructionsQueryId,
+                                                               ctkXnatDefaultSchemaTypes::XSI_RECONSTRUCTION);
+
+  if (!reconstructions.isEmpty())
+  {
+    ctkXnatReconstructionFolder* reconstructionFolder = new ctkXnatReconstructionFolder();
+    this->add(reconstructionFolder);
+  }
+  this->fetchResources();
 }

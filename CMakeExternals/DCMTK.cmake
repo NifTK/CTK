@@ -2,16 +2,16 @@
 # DCMTK
 #
 
-superbuild_include_once()
-
-set(DCMTK_enabling_variable DCMTK_LIBRARIES)
-set(${DCMTK_enabling_variable}_INCLUDE_DIRS DCMTK_INCLUDE_DIR)
-set(${DCMTK_enabling_variable}_FIND_PACKAGE_CMD DCMTK)
-
-set(DCMTK_DEPENDENCIES "")
-
-ctkMacroCheckExternalProjectDependency(DCMTK)
 set(proj DCMTK)
+
+set(${proj}_DEPENDENCIES "")
+
+ExternalProject_Include_Dependencies(${proj}
+  PROJECT_VAR proj
+  DEPENDS_VAR ${proj}_DEPENDENCIES
+  EP_ARGS_VAR ${proj}_EXTERNAL_PROJECT_ARGS
+  USE_SYSTEM_VAR ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj}
+  )
 
 if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   unset(DCMTK_DIR CACHE)
@@ -47,21 +47,20 @@ if(NOT DEFINED DCMTK_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   endif()
 
   ExternalProject_Add(${proj}
+    ${${proj}_EXTERNAL_PROJECT_ARGS}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${proj}-build
     PREFIX ${proj}${ep_suffix}
     ${location_args}
-    CMAKE_GENERATOR ${gen}
     UPDATE_COMMAND ""
     BUILD_COMMAND ""
-    LIST_SEPARATOR ${sep}
     CMAKE_ARGS
       -DDCMTK_INSTALL_BINDIR:STRING=bin/${CMAKE_CFG_INTDIR}
       -DDCMTK_INSTALL_LIBDIR:STRING=lib/${CMAKE_CFG_INTDIR}
     CMAKE_CACHE_ARGS
       ${ep_common_cache_args}
       ${ep_project_include_arg}
-      -DBUILD_SHARED_LIBS:BOOL=OFF
+      -DBUILD_SHARED_LIBS:BOOL=ON
       -DDCMTK_WITH_DOXYGEN:BOOL=OFF
       -DDCMTK_WITH_ZLIB:BOOL=OFF # see github issue #25
       -DDCMTK_WITH_OPENSSL:BOOL=OFF # see github issue #25
@@ -76,27 +75,12 @@ if(NOT DEFINED DCMTK_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     )
   set(DCMTK_DIR ${ep_install_dir})
 
-# This was used during heavy development on DCMTK itself.
-# Disabling it for now. (It also leads to to build errors
-# with the XCode CMake generator on Mac).
-#
-#    ExternalProject_Add_Step(${proj} force_rebuild
-#      COMMENT "Force ${proj} re-build"
-#      DEPENDERS build    # Steps that depend on this step
-#      ALWAYS 1
-#      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${proj}-build
-#      DEPENDS
-#        ${proj_DEPENDENCIES}
-#      )
-
-  # Since DCMTK is statically build, there is not need to add its corresponding
-  # library output directory to CTK_EXTERNAL_LIBRARY_DIRS
-
 else()
-  ctkMacroEmptyExternalproject(${proj} "${${proj}_DEPENDENCIES}")
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDENCIES})
 endif()
 
-list(APPEND CTK_SUPERBUILD_EP_VARS
-  DCMTK_DIR:PATH
+mark_as_superbuild(
+  VARS DCMTK_DIR:PATH
+  LABELS "FIND_PACKAGE"
   )
 

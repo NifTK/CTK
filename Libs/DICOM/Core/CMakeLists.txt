@@ -120,6 +120,10 @@ set(KIT_resources
 # The following macro will read the target libraries from the file 'target_libraries.cmake'
 ctkFunctionGetTargetLibraries(KIT_target_libraries)
 
+if(CTK_QT_VERSION VERSION_GREATER "4")
+  list(APPEND KIT_target_libraries Qt5::Sql Qt5::Gui)
+endif()
+
 # create a dcm query/retrieve service config file that points to the build dir
 set (DCMQRSCP_STORE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Testing)
 configure_file( Resources/dcmqrscp.cfg.in dcmqrscp.cfg )
@@ -145,7 +149,7 @@ if(DEFINED DCMTK_HAVE_CONFIG_H_OPTIONAL AND NOT DCMTK_HAVE_CONFIG_H_OPTIONAL)
 endif()
 
 
-if(CTK_WRAP_PYTHONQT_FULL OR CTK_WRAP_PYTHONQT_LIGHT)
+if(CTK_WRAP_PYTHONQT_LIGHT)
   ctkMacroBuildLibWrapper(
     TARGET ${PROJECT_NAME}
     SRCS ${KIT_SRCS}

@@ -2,12 +2,16 @@
 # KWStyle
 #
 
-superbuild_include_once()
-
-set(KWStyle_DEPENDENCIES "")
-
-ctkMacroCheckExternalProjectDependency(KWStyle)
 set(proj KWStyle)
+
+set(${proj}_DEPENDENCIES "")
+
+ExternalProject_Include_Dependencies(${proj}
+  PROJECT_VAR proj
+  DEPENDS_VAR ${proj}_DEPENDENCIES
+  EP_ARGS_VAR ${proj}_EXTERNAL_PROJECT_ARGS
+  USE_SYSTEM_VAR ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj}
+  )
 
 if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   unset(KWSTYLE_EXECUTABLE CACHE)
@@ -33,12 +37,11 @@ if(NOT DEFINED KWSTYLE_EXECUTABLE)
   endif()
 
   ExternalProject_Add(${proj}
+    ${${proj}_EXTERNAL_PROJECT_ARGS}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${proj}-build
     PREFIX ${proj}${ep_suffix}
     ${location_args}
-    CMAKE_GENERATOR ${gen}
-    LIST_SEPARATOR ${sep}
     CMAKE_CACHE_ARGS
       ${ep_common_cache_args}
     DEPENDS
@@ -46,10 +49,11 @@ if(NOT DEFINED KWSTYLE_EXECUTABLE)
     )
   set(KWSTYLE_EXECUTABLE ${ep_install_dir}/bin/KWStyle)
 
-  # Since KWStyle is an executable, there is not need to add its corresponding
-  # library output directory to CTK_EXTERNAL_LIBRARY_DIRS
 else()
-  ctkMacroEmptyExternalproject(${proj} "${${proj}_DEPENDENCIES}")
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDENCIES})
 endif()
 
-list(APPEND CTK_SUPERBUILD_EP_VARS KWSTYLE_EXECUTABLE:PATH)
+mark_as_superbuild(
+  VARS KWSTYLE_EXECUTABLE:FILEPATH
+  LABELS "FIND_PACKAGE"
+  )

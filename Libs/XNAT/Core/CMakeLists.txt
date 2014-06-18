@@ -7,28 +7,38 @@ project(CTKXNATCore)
 set(KIT_export_directive "CTK_XNAT_CORE_EXPORT")
 
 set(KIT_SRCS
-  ctkXnatConnection.cpp
-  ctkXnatConnectionFactory.cpp
+  ctkXnatAPI.cpp
+  ctkXnatDataModel.cpp
+  ctkXnatDefaultSchemaTypes.cpp
   ctkXnatException.cpp
   ctkXnatExperiment.cpp
+  ctkXnatFile.cpp
+  ctkXnatListModel.cpp
+  ctkXnatLoginProfile.cpp
   ctkXnatObject.cpp
   ctkXnatObjectPrivate.cpp
   ctkXnatProject.cpp
-  ctkXnatScan.cpp
-  ctkXnatScanFolder.cpp
-  ctkXnatScanResource.cpp
-  ctkXnatScanResourceFile.cpp
   ctkXnatReconstruction.cpp
   ctkXnatReconstructionFolder.cpp
   ctkXnatReconstructionResource.cpp
-  ctkXnatReconstructionResourceFile.cpp
-  ctkXnatServer.cpp
+  ctkXnatResource.cpp
+  ctkXnatScan.cpp
+  ctkXnatScanFolder.cpp
+  ctkXnatScanResource.cpp
+  ctkXnatSession.cpp
   ctkXnatSettings.cpp
   ctkXnatSubject.cpp
+  ctkXnatTreeItem.cpp
+  ctkXnatTreeItem_p.h
+  ctkXnatTreeModel.cpp
 )
 
 # Files which should be processed by Qts moc
 set(KIT_MOC_SRCS
+  ctkXnatAPI_p.h
+  ctkXnatSession.h
+  ctkXnatListModel.h
+  ctkXnatTreeModel.h
 )
 
 
@@ -55,10 +65,7 @@ ctkMacroBuildLib(
   LIBRARY_TYPE ${CTK_LIBRARY_MODE}
   )
 
-## Testing
-#if(BUILD_TESTING)
-#  add_subdirectory(Testing)
-#
-#  # Compile source code snippets
-#  add_subdirectory(Documentation/Snippets)
-#endif()
+# Testing
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()

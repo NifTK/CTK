@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -21,9 +21,15 @@
 
 #include "ctkXnatScan.h"
 
-#include "ctkXnatConnection.h"
+#include "ctkXnatSession.h"
+#include "ctkXnatScanFolder.h"
+#include "ctkXnatScanResource.h"
+#include "ctkXnatObject.h"
 #include "ctkXnatObjectPrivate.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
+
+//----------------------------------------------------------------------------
 class ctkXnatScanPrivate : public ctkXnatObjectPrivate
 {
 public:
@@ -37,58 +43,51 @@ public:
   {
     uri.clear();
   }
-  
+
   QString uri;
 };
 
 
-ctkXnatScan::ctkXnatScan()
-: ctkXnatObject(*new ctkXnatScanPrivate())
+//----------------------------------------------------------------------------
+ctkXnatScan::ctkXnatScan(ctkXnatObject* parent, const QString& schemaType)
+: ctkXnatObject(*new ctkXnatScanPrivate(), parent, schemaType)
 {
 }
 
-ctkXnatScan::Pointer ctkXnatScan::Create()
-{
-  Pointer ptr(new ctkXnatScan());
-  ptr->d_func()->selfPtr = ptr;
-  return ptr;
-}
-
+//----------------------------------------------------------------------------
 ctkXnatScan::~ctkXnatScan()
 {
 }
 
-const QString& ctkXnatScan::uri() const
+//----------------------------------------------------------------------------
+QString ctkXnatScan::resourceUri() const
 {
-  Q_D(const ctkXnatScan);
-  return d->uri;
+  return QString("%1/%2").arg(parent()->resourceUri(), this->id());
 }
 
-void ctkXnatScan::setUri(const QString& uri)
-{
-  Q_D(ctkXnatScan);
-  d->uri = uri;
-}
-
+//----------------------------------------------------------------------------
 void ctkXnatScan::reset()
 {
   ctkXnatObject::reset();
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatScan::fetchImpl()
 {
-  Q_D(ctkXnatScan);
-  ctkXnatObject::Pointer self = d->selfPtr;
-  this->connection()->fetch(self.staticCast<ctkXnatScan>());
-}
+  QString scanResourcesUri = this->resourceUri() + "/resources";
+  ctkXnatSession* const session = this->session();
+  QUuid queryId = session->httpGet(scanResourcesUri);
 
-void ctkXnatScan::remove()
-{
-  // ctkXnatObject::remove();
-  // getConnection()->remove(this);
-}
+  QList<ctkXnatObject*> scanResources = session->httpResults(queryId,
+                                                             ctkXnatDefaultSchemaTypes::XSI_SCAN_RESOURCE);
 
-bool ctkXnatScan::isFile() const
-{
-  return false;
+  foreach (ctkXnatObject* scanResource, scanResources)
+  {
+    QString label = scanResource->property("label");
+    if (!label.isEmpty())
+    {
+      scanResource->setProperty("ID", label);
+    }
+    this->add(scanResource);
+  }
 }

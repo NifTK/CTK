@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -25,45 +25,38 @@
 #include "ctkXNATCoreExport.h"
 
 #include "ctkXnatObject.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
 class ctkXnatConnection;
 class ctkXnatReconstructionResourcePrivate;
+class ctkXnatReconstruction;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatReconstructionResource : public ctkXnatObject
 {
-  
+
 public:
 
-  typedef QSharedPointer<ctkXnatReconstructionResource> Pointer;
-  typedef QWeakPointer<ctkXnatReconstructionResource> WeakPointer;
-  
-  static Pointer Create();
+  ctkXnatReconstructionResource(ctkXnatObject* parent = 0,
+                                const QString& schemaType = ctkXnatDefaultSchemaTypes::XSI_RECONSTRUCTION_RESOURCE);
+
   virtual ~ctkXnatReconstructionResource();
-  
-//  const QString& uri() const;
-//  void setUri(const QString& uri);
-  
+
+  virtual QString resourceUri() const;
+
   void reset();
-  void remove();
-  
-  bool isFile() const;
 
   void download(const QString& filename);
 
-  /* bool receivesFiles() const; */
-  /* bool holdsFiles() const; */
-  /* bool isDeletable() const; */
-  /* bool isModifiable() const; */
-  
 private:
-  
+
   friend class qRestResult;
-  explicit ctkXnatReconstructionResource();
   virtual void fetchImpl();
-  
-  Q_DECLARE_PRIVATE(ctkXnatReconstructionResource);
-  Q_DISABLE_COPY(ctkXnatReconstructionResource);
-  
+
+  Q_DECLARE_PRIVATE(ctkXnatReconstructionResource)
+
 };
 
 #endif

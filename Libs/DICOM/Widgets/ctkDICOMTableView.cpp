@@ -108,7 +108,11 @@ void ctkDICOMTableViewPrivate::setUpTableView()
       this->tblDicomDatabaseView->setModel(this->dicomSQLFilterModel);
       this->tblDicomDatabaseView->setColumnHidden(0, true);
       this->tblDicomDatabaseView->setSortingEnabled(true);
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
       this->tblDicomDatabaseView->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+#else
+      this->tblDicomDatabaseView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+#endif
       this->hideUIDColumns();
 
       QObject::connect(this->tblDicomDatabaseView->selectionModel(),
@@ -287,6 +291,13 @@ void ctkDICOMTableView::onInstanceAdded()
 }
 
 //------------------------------------------------------------------------------
+void ctkDICOMTableView::selectAll()
+{
+  Q_D(ctkDICOMTableView);
+  d->tblDicomDatabaseView->selectAll();
+}
+
+//------------------------------------------------------------------------------
 void ctkDICOMTableView::setQuery(const QStringList &uids)
 {
   Q_D(ctkDICOMTableView);
@@ -364,4 +375,19 @@ bool ctkDICOMTableView::filterActive()
 {
   Q_D(ctkDICOMTableView);
   return (d->leSearchBox->text().length() != 0);
+}
+
+//------------------------------------------------------------------------------
+void ctkDICOMTableView::setTableSectionSize(int size)
+{
+  Q_D(ctkDICOMTableView);
+  d->tblDicomDatabaseView->verticalHeader()->setDefaultSectionSize(size);
+  d->setUpTableView();
+}
+
+//------------------------------------------------------------------------------
+int ctkDICOMTableView::tableSectionSize()
+{
+  Q_D(ctkDICOMTableView);
+  return d->tblDicomDatabaseView->verticalHeader()->defaultSectionSize();
 }

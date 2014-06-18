@@ -115,6 +115,9 @@ public:
 
   bool filterActive();
 
+  void setTableSectionSize(int);
+  int tableSectionSize();
+
 public Q_SLOTS:
 
   /**
@@ -144,6 +147,8 @@ protected Q_SLOTS:
    * @brief Called if a new instance was added to the database
    */
   void onInstanceAdded();
+
+  void selectAll();
 
 Q_SIGNALS:
   /**

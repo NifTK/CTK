@@ -26,8 +26,7 @@
 
 class QModelIndex;
 
-class ctkXnatConnection;
-class ctkXnatConnectionFactory;
+class ctkXnatSession;
 class ctkXnatTreeModel;
 
 namespace Ui {
@@ -45,12 +44,13 @@ public:
 private Q_SLOTS:
 
   void loginButtonPushed();
+  void itemSelected(const QModelIndex&);
+  void downloadButtonClicked();
 
 private:
   Ui::ctkXnatTreeBrowserMainWindow* ui;
 
-  ctkXnatConnectionFactory* m_ConnectionFactory;
-  ctkXnatConnection* m_Connection;
+  ctkXnatSession* m_Session;
   ctkXnatTreeModel* m_TreeModel;
 };
 

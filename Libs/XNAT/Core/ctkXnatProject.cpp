@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -21,9 +21,14 @@
 
 #include "ctkXnatProject.h"
 
-#include "ctkXnatConnection.h"
+#include "ctkXnatDataModel.h"
+#include "ctkXnatSession.h"
+#include "ctkXnatSubject.h"
 #include "ctkXnatObjectPrivate.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
+
+//----------------------------------------------------------------------------
 class ctkXnatProjectPrivate : public ctkXnatObjectPrivate
 {
 public:
@@ -47,89 +52,110 @@ public:
 //  QString uri;
 };
 
-ctkXnatProject::ctkXnatProject()
-: ctkXnatObject(*new ctkXnatProjectPrivate())
+
+//----------------------------------------------------------------------------
+ctkXnatProject::ctkXnatProject(ctkXnatObject* parent, const QString& schemaType)
+: ctkXnatObject(*new ctkXnatProjectPrivate(), parent, schemaType)
 {
 }
 
-ctkXnatProject::Pointer ctkXnatProject::Create()
-{
-  Pointer project(new ctkXnatProject());
-  project->d_func()->selfPtr = project;
-  return project;
-}
-
+//----------------------------------------------------------------------------
 ctkXnatProject::~ctkXnatProject()
 {
 }
 
+//----------------------------------------------------------------------------
+QString ctkXnatProject::resourceUri() const
+{
+  return QString("%1/data/archive/projects/%2").arg(parent()->resourceUri(), this->id());
+}
+
+//----------------------------------------------------------------------------
+QString ctkXnatProject::childDataType() const
+{
+  return "Subjects";
+}
+
+//----------------------------------------------------------------------------
 const QString& ctkXnatProject::secondaryId() const
 {
   Q_D(const ctkXnatProject);
   return d->secondaryId;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatProject::setSecondaryId(const QString& secondaryId)
 {
   Q_D(ctkXnatProject);
   d->secondaryId = secondaryId;
 }
 
+//----------------------------------------------------------------------------
 const QString& ctkXnatProject::piFirstName() const
 {
   Q_D(const ctkXnatProject);
   return d->piFirstName;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatProject::setPiFirstName(const QString& piFirstName)
 {
   Q_D(ctkXnatProject);
   d->piFirstName = piFirstName;
 }
 
+//----------------------------------------------------------------------------
 const QString& ctkXnatProject::piLastName() const
 {
   Q_D(const ctkXnatProject);
   return d->piLastName;
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatProject::setPiLastName(const QString& piLastName)
 {
   Q_D(ctkXnatProject);
   d->piLastName = piLastName;
 }
 
+//----------------------------------------------------------------------------
 //const QString& ctkXnatProject::uri() const
 //{
 //  Q_D(const ctkXnatProject);
 //  return d->uri;
 //}
 
+//----------------------------------------------------------------------------
 //void ctkXnatProject::setUri(const QString& uri)
 //{
 //  Q_D(ctkXnatProject);
 //  d->uri = uri;
 //}
 
+//----------------------------------------------------------------------------
 void ctkXnatProject::reset()
 {
   ctkXnatObject::reset();
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatProject::fetchImpl()
 {
-  Q_D(ctkXnatProject);
-  ctkXnatObject::Pointer self = d->selfPtr;
-  this->connection()->fetch(self.staticCast<ctkXnatProject>());
-}
+  QString subjectsUri = this->resourceUri() + "/subjects";
+  ctkXnatSession* const session = this->session();
+  QUuid queryId = session->httpGet(subjectsUri);
+  QList<ctkXnatObject*> subjects = session->httpResults(queryId,
+                                                        ctkXnatDefaultSchemaTypes::XSI_SUBJECT);
 
-void ctkXnatProject::remove()
-{
-  // ctkXnatObject::remove();
-  // getConnection()->remove(this);
-}
+  foreach (ctkXnatObject* subject, subjects)
+  {
+    QString label = subject->property("label");
+    if (!label.isEmpty())
+    {
+      subject->setProperty("ID", label);
+    }
 
-bool ctkXnatProject::isFile() const
-{
-  return false;
+    this->add(subject);
+  }
+  this->fetchResources();
 }

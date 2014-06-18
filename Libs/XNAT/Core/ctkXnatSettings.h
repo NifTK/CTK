@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -29,30 +29,30 @@
 
 class ctkXnatLoginProfile;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatSettings
 {
 public:
-  virtual QString getDefaultDirectory() const = 0;
+  virtual QString defaultDirectory() const = 0;
   virtual void setDefaultDirectory(const QString& dir) = 0;
 
-  virtual QString getDefaultWorkDirectory() const = 0;
+  virtual QString defaultWorkDirectory() const = 0;
   virtual void setDefaultWorkDirectory(const QString& workDir) = 0;
 
-  virtual QString getWorkSubdirectory() const;
+  virtual QString workSubdirectory() const;
 
-  virtual QMap<QString, ctkXnatLoginProfile*> getLoginProfiles() const = 0;
+  virtual QMap<QString, ctkXnatLoginProfile*> loginProfiles() const = 0;
   virtual void setLoginProfiles(QMap<QString, ctkXnatLoginProfile*> loginProfiles) = 0;
 
-  virtual ctkXnatLoginProfile* getLoginProfile(QString profileName) const = 0;
+  virtual ctkXnatLoginProfile* loginProfile(QString profileName) const = 0;
   virtual void setLoginProfile(QString profileName, ctkXnatLoginProfile*) = 0;
 
   virtual void removeLoginProfile(QString profileName) = 0;
 
-  virtual ctkXnatLoginProfile* getDefaultLoginProfile() const = 0;
+  virtual ctkXnatLoginProfile* defaultLoginProfile() const = 0;
 
-protected:
-  explicit ctkXnatSettings();
-  virtual ~ctkXnatSettings();
 };
 
 #endif

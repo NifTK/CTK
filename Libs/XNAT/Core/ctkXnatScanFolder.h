@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -27,40 +27,31 @@
 #include "ctkXnatObject.h"
 
 class ctkXnatConnection;
+class ctkXnatExperiment;
 class ctkXnatScanFolderPrivate;
 
+/**
+ * @ingroup XNAT_Core
+ */
 class CTK_XNAT_CORE_EXPORT ctkXnatScanFolder : public ctkXnatObject
 {
 
 public:
-  
-  typedef QSharedPointer<ctkXnatScanFolder> Pointer;
-  typedef QWeakPointer<ctkXnatScanFolder> WeakPointer;
-  
-  static Pointer Create();
-  virtual ~ctkXnatScanFolder();
-  
-//  const QString& uri() const;
-//  void setUri(const QString& uri);
-  
-  void reset();
-  void remove();
-  
-  bool isFile() const;
 
-  /* bool receivesFiles() const; */
-  /* bool holdsFiles() const; */
-  /* bool isDeletable() const; */
-  /* bool isModifiable() const; */
-  
+  ctkXnatScanFolder(ctkXnatObject* parent = NULL);
+
+  virtual ~ctkXnatScanFolder();
+
+  virtual QString resourceUri() const;
+
+  void reset();
+
 private:
-  
+
   friend class qRestResult;
-  explicit ctkXnatScanFolder();
   virtual void fetchImpl();
-  
-  Q_DECLARE_PRIVATE(ctkXnatScanFolder);
-  Q_DISABLE_COPY(ctkXnatScanFolder);
+
+  Q_DECLARE_PRIVATE(ctkXnatScanFolder)
 };
 
 #endif

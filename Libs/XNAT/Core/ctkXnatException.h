@@ -1,9 +1,9 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
-  Copyright (c) University College London,
-    Centre for Medical Image Computing
+  Copyright (c) German Cancer Research Center,
+    Division of Medical and Biological Informatics
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,18 +24,15 @@
 
 #include "ctkXNATCoreExport.h"
 
-#include <exception>
-#include <string>
+#include "ctkException.h"
 
-class CTK_XNAT_CORE_EXPORT ctkXnatException : public std::exception
-{
-public:
-  ctkXnatException(const std::string& message);
-
-  virtual const char* what() const throw();
-
-private:
-  const char* message;
-};
+/// @ingroup XNAT_Core
+/// @{
+CTK_DECLARE_EXCEPTION(CTK_XNAT_CORE_EXPORT, ctkXnatException, ctkRuntimeException)
+CTK_DECLARE_EXCEPTION(CTK_XNAT_CORE_EXPORT, ctkXnatTimeoutException, ctkXnatException)
+CTK_DECLARE_EXCEPTION(CTK_XNAT_CORE_EXPORT, ctkXnatInvalidSessionException, ctkXnatException)
+CTK_DECLARE_EXCEPTION(CTK_XNAT_CORE_EXPORT, ctkXnatAuthenticationException, ctkXnatException)
+CTK_DECLARE_EXCEPTION(CTK_XNAT_CORE_EXPORT, ctkXnatProtocolFailureException, ctkXnatException)
+/// @}
 
 #endif

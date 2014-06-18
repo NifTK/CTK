@@ -1,6 +1,6 @@
 /*=============================================================================
 
-  Plugin: org.commontk.xnat
+  Library: XNAT/Core
 
   Copyright (c) University College London,
     Centre for Medical Image Computing
@@ -21,9 +21,14 @@
 
 #include "ctkXnatReconstruction.h"
 
-#include "ctkXnatConnection.h"
+#include "ctkXnatSession.h"
 #include "ctkXnatObjectPrivate.h"
+#include "ctkXnatReconstructionFolder.h"
+#include "ctkXnatReconstructionResource.h"
+#include "ctkXnatDefaultSchemaTypes.h"
 
+
+//----------------------------------------------------------------------------
 class ctkXnatReconstructionPrivate : public ctkXnatObjectPrivate
 {
 public:
@@ -37,58 +42,52 @@ public:
   {
     uri.clear();
   }
-  
+
   QString uri;
 };
 
 
-ctkXnatReconstruction::ctkXnatReconstruction()
-: ctkXnatObject(*new ctkXnatReconstructionPrivate())
+//----------------------------------------------------------------------------
+ctkXnatReconstruction::ctkXnatReconstruction(ctkXnatObject* parent, const QString& schemaType)
+: ctkXnatObject(*new ctkXnatReconstructionPrivate(), parent, schemaType)
 {
 }
 
-ctkXnatReconstruction::Pointer ctkXnatReconstruction::Create()
-{
-  Pointer ptr(new ctkXnatReconstruction());
-  ptr->d_func()->selfPtr = ptr;
-  return ptr;
-}
-
+//----------------------------------------------------------------------------
 ctkXnatReconstruction::~ctkXnatReconstruction()
 {
 }
 
-const QString& ctkXnatReconstruction::uri() const
+//----------------------------------------------------------------------------
+QString ctkXnatReconstruction::resourceUri() const
 {
-  Q_D(const ctkXnatReconstruction);
-  return d->uri;
+  return QString("%1/%2").arg(parent()->resourceUri(), this->id());
 }
 
-void ctkXnatReconstruction::setUri(const QString& uri)
-{
-  Q_D(ctkXnatReconstruction);
-  d->uri = uri;
-}
-
+//----------------------------------------------------------------------------
 void ctkXnatReconstruction::reset()
 {
   ctkXnatObject::reset();
 }
 
+//----------------------------------------------------------------------------
 void ctkXnatReconstruction::fetchImpl()
 {
-  Q_D(ctkXnatReconstruction);
-  ctkXnatObject::Pointer self = d->selfPtr;
-  this->connection()->fetch(self.staticCast<ctkXnatReconstruction>());
-}
+  QString reconstructionResourcesUri = this->resourceUri() + "/files";
+  ctkXnatSession* const session = this->session();
+  QUuid queryId = session->httpGet(reconstructionResourcesUri);
 
-void ctkXnatReconstruction::remove()
-{
-  // ctkXnatObject::remove();
-  // getConnection()->remove(this);
-}
+  QList<ctkXnatObject*> reconstructionResources = session->httpResults(queryId,
+                                                                       ctkXnatDefaultSchemaTypes::XSI_FILE);
 
-bool ctkXnatReconstruction::isFile() const
-{
-  return false;
+  foreach (ctkXnatObject* reconstructionResource, reconstructionResources)
+  {
+    QString label = reconstructionResource->property("Name");
+    if (!label.isEmpty())
+    {
+      reconstructionResource->setProperty("ID", label);
+    }
+
+    this->add(reconstructionResource);
+  }
 }
