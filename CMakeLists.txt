@@ -933,7 +933,6 @@ set(CTK_DEPENDENCIES
   QtSOAP
   qxmlrpc
   qRestAPI
-  QuaZip
   OpenIGTLink
   XIP
   ITK
