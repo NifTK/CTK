@@ -60,12 +60,14 @@ void ctkXnatTreeBrowserMainWindow::loginButtonPushed()
 {
   if (m_Session)
   {
+    ctkXnatDataModel* dataModel = m_Session->dataModel();
+    m_TreeModel->removeDataModel(dataModel);
+    ui->treeView->reset();
     delete m_Session;
     m_Session = 0;
     ui->loginButton->setText("Login");
     ui->loginLabel->setText("Disconnected");
     ui->downloadLabel->hide();
-
   }
   else
   {
