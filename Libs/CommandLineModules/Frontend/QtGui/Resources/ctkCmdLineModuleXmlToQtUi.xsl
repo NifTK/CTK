@@ -294,7 +294,7 @@
        disallow the parameter to be passed to the command line executable. -->
   <xsl:template name="connectCheckBox" match="*" mode="connections">
     <connection>
-      <sender><xsl:value-of select="name"/>:enabled</sender>
+      <sender><xsl:value-of select="name"/>:passParameter</sender>
       <signal>toggled(bool)</signal>
       <receiver>parameter:<xsl:value-of select="name"/></receiver>
       <slot>setEnabled(bool)</slot>
