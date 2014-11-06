@@ -129,7 +129,7 @@
   <xsl:template match="text()|@*"/>
   
   <!-- suppress elements not covered in "connections" mode -->
-  <xsl:template match="*" mode="connections"/>
+  <!-- <xsl:template match="*" mode="connections"/> -->
 
   <!-- suppress elements not covered in "signals" mode -->
   <xsl:template match="*" mode="signals"/>
@@ -198,6 +198,7 @@
           <!--<xsl:call-template name="commonWidgetProperties"/> -->
           <xsl:apply-templates select="default"/>
           <xsl:apply-templates select="constraints"/>
+          <xsl:apply-templates select="connectCheckBox"/>
           <xsl:if test="@passByDefault='true'"> <!-- setting checkbox if the parameter has to be passed by default -->
             <property name="checked">
               <bool>true</bool>
@@ -286,6 +287,18 @@
       </xsl:for-each>
       </stringlist>
     </property>
+  </xsl:template>
+
+  <!-- A named utility template for connecting an extra checkbox with the
+       parameter's GUI representation that allows the user to allow /
+       disallow the parameter to be passed to the command line executable. -->
+  <xsl:template name="connectCheckBox" match="*" mode="connections">
+    <connection>
+      <sender><xsl:value-of select="name"/>:enabled</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>parameter:<xsl:value-of select="name"/></receiver>
+      <slot>setEnabled(bool)</slot>
+    </connection>
   </xsl:template>
 
   <!--
