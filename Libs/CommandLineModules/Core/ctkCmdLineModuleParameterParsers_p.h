@@ -71,6 +71,8 @@ protected:
   {
     // handle common attributes
     moduleParamPrivate->Hidden = parseBooleanAttribute(xmlReader.attributes().value("hidden"));
+    moduleParamPrivate->AlwaysPass = parseBooleanAttribute(xmlReader.attributes().value("alwaysPass"));
+    moduleParamPrivate->PassByDefault = parseBooleanAttribute(xmlReader.attributes().value("passByDefault"));
   }
 
   virtual bool handleSubElement(ctkCmdLineModuleParameterPrivate* moduleParamPrivate, QXmlStreamReader& xmlReader)
