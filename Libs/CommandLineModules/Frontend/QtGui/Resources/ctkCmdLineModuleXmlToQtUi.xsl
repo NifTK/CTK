@@ -192,7 +192,30 @@
   <!-- A named template which will be called from each parameter (integer, float, image, etc.) element.
        It assumes that it will be called from an enclosing Qt grid layout element and adds a label item -->
   <xsl:template name="gridItemWithLabel">
-    <item  row="{position()-1}" column="0">
+    <xsl:if test="@alwaysPass='false'">  <!-- parameter can be selectively passed  -->
+      <item  row="{position()-1}" column="0">
+        <widget class="{$booleanWidget}"  name="{name}:passParameter">
+          <!--<xsl:call-template name="commonWidgetProperties"/> -->
+          <xsl:apply-templates select="default"/>
+          <xsl:apply-templates select="constraints"/>
+          <xsl:if test="@passByDefault='true'"> <!-- setting checkbox if the parameter has to be passed by default -->
+            <property name="checked">
+              <bool>true</bool>
+            </property>
+          </xsl:if>
+          <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+          <property name="text">
+            <string/>
+          </property>
+        </widget>
+      </item>
+    </xsl:if>
+    <item  row="{position()-1}" column="1">
       <widget class="QLabel">
         <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -214,6 +237,13 @@
       <property  name="visible">
         <bool>false</bool>
       </property>
+    </xsl:if>
+    <xsl:if test="@alwaysPass='false'"> <!-- parameter can be selectively passed  -->
+      <xsl:if test="@passByDefault='false'">
+        <property name="enabled">
+          <bool>false</bool>
+        </property>
+      </xsl:if>
     </xsl:if>
     <!-- disable simple return parameter -->
     <xsl:if test="index/text()='1000' and channel/text()='output' and $disableReturnParameter='true'">
@@ -333,7 +363,7 @@
 
   <xsl:template match="parameters/boolean">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$booleanWidget}"  name="parameter:{name}">
         <xsl:call-template name="commonWidgetProperties"/>
         <property name="text">
@@ -351,7 +381,7 @@
 
   <xsl:template match="parameters/integer">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$integerWidget}"  name="parameter:{name}">
         <xsl:if test="not(constraints)">
           <property name="minimum">
@@ -374,7 +404,7 @@
 
   <xsl:template match="parameters/*[name()=('double','float')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$floatingWidget}"  name="parameter:{name}">
         <property name="decimals">
           <number>6</number>
@@ -400,7 +430,7 @@
 
   <xsl:template match="parameters/*[name()=('string', 'integer-vector', 'float-vector', 'double-vector', 'string-vector')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$vectorWidget}"  name="parameter:{name}">
         <xsl:call-template name="commonWidgetProperties"/>
       </widget>
@@ -415,7 +445,7 @@
 
   <xsl:template match="parameters/*[name()=('integer-enumeration', 'float-enumeration', 'double-enumeration', 'string-enumeration')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$enumWidget}"  name="parameter:{name}">
         <xsl:call-template name="commonWidgetProperties"/>
         <xsl:for-each select="element">
@@ -437,7 +467,7 @@
 
   <xsl:template match="parameters/*[name()=('image')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <xsl:choose>
         <xsl:when test="channel = 'input'">
           <widget class="{$imageInputWidget}"  name="parameter:{name}">
@@ -473,7 +503,7 @@
 
   <xsl:template match="parameters/*[name()=('file', 'geometry')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <xsl:choose>
         <xsl:when test="channel = 'input'">
           <widget class="{$fileInputWidget}"  name="parameter:{name}">
@@ -509,7 +539,7 @@
 
   <xsl:template match="parameters/directory">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$directoryWidget}"  name="parameter:{name}">
         <xsl:call-template name="commonWidgetProperties"/>
         <property name="filters">
@@ -527,7 +557,7 @@
 
   <xsl:template match="parameters/*[name()=('point', 'region')]">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$pointWidget}"  name="parameter:{name}">
         <xsl:call-template name="commonWidgetProperties"/>
       </widget>
@@ -542,7 +572,7 @@
   
   <xsl:template match="parameters/*" priority="-1">
     <xsl:call-template name="gridItemWithLabel"/>
-    <item  row="{position()-1}" column="1">
+    <item  row="{position()-1}" column="2">
       <widget class="{$unsupportedWidget}"  name="{name}">
         <property name="text">
           <string>&lt;html&gt;&lt;head&gt;&lt;meta name="qrichtext" content="1" /&gt;&lt;style type="text/css"&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;p style="margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"&gt;&lt;span style=" color:#ff0000;">Element '<xsl:value-of select="name()"/>' not supported yet.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
