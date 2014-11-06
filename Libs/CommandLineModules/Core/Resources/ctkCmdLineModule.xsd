@@ -262,6 +262,24 @@
     
     <!-- parameter attributes -->
     <xsd:attribute default="false" name="hidden" type="xsd:boolean"/>
+
+    <xsd:attribute default="false" name="alwaysPass" type="xsd:boolean">
+      <xsd:annotation>
+        <xsd:documentation>This value is usually used in GUI generators to decide
+        if the parameter is always passed to the command line application or not.
+        When 'alwaysPass' is set to false the user will be presented with a checkbox
+        to interactively allow or disallow this parameter to be passed to the
+        command line executable. The default state of the checkbox is defined by
+        the 'passbyDefault' argument. </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute default="false" name="passByDefault" type="xsd:boolean">
+      <xsd:annotation>
+        <xsd:documentation>Defines the default value of the checkbox on the UI,
+        that is displayed when the paramter is not always passed.
+        ('alwaysPass' attribute is false).</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
 
   <!--
