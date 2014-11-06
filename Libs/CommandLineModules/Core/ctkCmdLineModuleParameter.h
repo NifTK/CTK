@@ -68,6 +68,17 @@ public:
   bool hidden() const;
 
   /**
+   * @return <code>true</code> if the parameter is always passed to the command line executable
+   * , <code>false</code> otherwise. If not always passed then a checkbox is displayed on UI.
+   */
+  bool alwaysPass() const;
+
+  /**
+   * @return Defines the default value of the checkbox when the variable is not always passed
+  */
+  bool passByDefault() const;
+
+  /**
    * Simple return types are parameters on the output channel with no
    * flags and with a dummy index of 1000.
    *

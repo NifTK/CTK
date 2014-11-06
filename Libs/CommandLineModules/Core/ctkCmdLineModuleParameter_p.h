@@ -41,6 +41,8 @@ struct ctkCmdLineModuleParameterPrivate : public QSharedData
   QString Label;
   QString Type;
   bool Hidden;
+  bool AlwaysPass;
+  bool PassByDefault;
   QString Default;
   QString Flag;
   QString LongFlag;

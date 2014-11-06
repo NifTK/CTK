@@ -27,7 +27,7 @@ limitations under the License.
 
 //----------------------------------------------------------------------------
 ctkCmdLineModuleParameterPrivate::ctkCmdLineModuleParameterPrivate()
-  : Hidden(false), Constraints(false), Channel("input"), Index(-1), Multiple(false)
+  : Hidden(false), AlwaysPass(true), PassByDefault(false), Constraints(false), Channel("input"), Index(-1), Multiple(false)
 {}
 
 //----------------------------------------------------------------------------
@@ -91,6 +91,18 @@ QString ctkCmdLineModuleParameter::type() const
 bool ctkCmdLineModuleParameter::hidden() const
 {
   return d->Hidden;
+}
+
+//----------------------------------------------------------------------------
+bool ctkCmdLineModuleParameter::alwaysPass() const
+{
+  return d->AlwaysPass;
+}
+
+//----------------------------------------------------------------------------
+bool ctkCmdLineModuleParameter::passByDefault() const
+{
+  return d->PassByDefault;
 }
 
 //----------------------------------------------------------------------------
@@ -276,6 +288,8 @@ QTextStream& operator<<(QTextStream& os, const ctkCmdLineModuleParameter& parame
   os << "      " << "Label: " << parameter.label() << '\n';
   os << "      " << "Type: " << parameter.type() << '\n';
   os << "      " << "Hidden: " << (parameter.hidden() ? "true" : "false") << '\n';
+  os << "      " << "AlwaysPass: " << (parameter.alwaysPass() ? "true" : "false") << '\n';
+  os << "      " << "PassByDefault: " << (parameter.passByDefault() ? "true" : "false") << '\n';
   os << "      " << "Default: " << parameter.defaultValue() << '\n';
   os << "      " << "Elements: " << parameter.elements().join(", ") << '\n';
   os << "      " << "Constraints: " << (parameter.constraints() ? "true" : "false") << '\n';
