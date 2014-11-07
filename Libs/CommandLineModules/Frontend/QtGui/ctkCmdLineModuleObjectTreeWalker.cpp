@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QStack>
 #include <QVariant>
+#include <QDebug>
 
 namespace {
 
@@ -173,6 +174,12 @@ bool ctkCmdLineModuleObjectTreeWalker::isMultiple() const
 QVariant ctkCmdLineModuleObjectTreeWalker::property(const QString &propName) const
 {
   if (CurrentObject == 0) return QVariant();
+
+  bool isEnabled = CurrentObject->property("enabled").toBool();
+
+  qWarning() <<"Property "<<CurrentObject->objectName() <<" enabled: " <<CurrentObject->property("enabled");
+  qWarning() <<"Property "<<CurrentObject->objectName() <<" checked: "  <<CurrentObject->property("checked");
+  //if (!isEnabled) return QVariant();
 
   // First try to get a prefixed property
   QVariant res = prefixedProperty(propName);
