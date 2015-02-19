@@ -35,6 +35,14 @@ if(CTK_SUPERBUILD)
   set(ep_install_dir ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
   set(ep_suffix      "-cmake")
 
+  set(_install_rpath)
+  if(APPLE)
+    set(_install_rpath "@loader_path/../lib")
+  elseif(UNIX)
+    # this work for libraries as well as executables
+    set(_install_rpath "\$ORIGIN/../lib")
+  endif()
+
   set(ep_common_c_flags "${CMAKE_C_FLAGS_INIT} ${ADDITIONAL_C_FLAGS}")
   set(ep_common_cxx_flags "${CMAKE_CXX_FLAGS_INIT} ${ADDITIONAL_CXX_FLAGS}")
 
@@ -44,6 +52,8 @@ if(CTK_SUPERBUILD)
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
       -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
       -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
+      -DCMAKE_MACOSX_RPATH:BOOL=TRUE
+      "-DCMAKE_INSTALL_RPATH:STRING=${_install_rpath}"
       -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
       -DCMAKE_PREFIX_PATH:STRING=${CMAKE_PREFIX_PATH}
       -DBUILD_TESTING:BOOL=OFF
