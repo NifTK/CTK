@@ -424,7 +424,7 @@ QVariant ctkPluginFrameworkLauncher::run(QRunnable* endSplashHandler, const QVar
       startup(d->endSplashHandler);
       if (ctkPluginFrameworkProperties::getProperty(PROP_IGNOREAPP).toBool() || d->isForcedRestart())
       {
-        return (argument != NULL) ? argument : QVariant();
+        return argument;
       }
       return run(argument);
     }
